@@ -1,60 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TickIT | Client</title>
-  <style>
-    :root {
-      --bg: #f6f9fb;
-      --text: #1f2d4a;
-      --muted: #6f7a8f;
-      --primary: #4a3bff;
-    }
-    body {
-      margin: 0;
-      font-family: "Manrope", "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 28px 32px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      max-width: 540px;
-      width: 100%;
-      text-align: center;
-    }
-    h1 {
-      margin: 0 0 6px;
-      font-size: 28px;
-    }
-    p {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    a {
-      display: inline-block;
-      margin-top: 12px;
-      color: var(--primary);
-      font-weight: 700;
-      text-decoration: none;
-    }
-    a:hover { text-decoration: underline; }
-  </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Create Ticket</title>
+ <style>
+   body { font-family: Arial, sans-serif; padding: 16px; }
+   form { max-width: 480px; display: grid; gap: 10px; }
+   label { display: flex; flex-direction: column; font-weight: 700; }
+   input, textarea { padding: 10px; font-size: 14px; }
+   button { padding: 12px; font-size: 14px; cursor: pointer; }
+   #status { margin-top: 6px; font-weight: 700; }
+ </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Welcome, Client!</h1>
-    <p>You are signed in as a client. Build out your ticket views here.</p>
-    <a href="/">Back to Sign In</a>
-  </div>
+ <h1>Create Ticket</h1>
+ <p>Provide a title and description to submit your ticket.</p>
+ <form id="ticket-form">
+   <label>Ticket Title
+     <input name="title" placeholder="Enter a short summary" required>
+   </label>
+   <label>Ticket Description
+     <textarea name="description" rows="4" placeholder="Describe your issue" required></textarea>
+   </label>
+   <button type="submit">Submit Ticket</button>
+   <div id="status"></div>
+ </form>
+
+
+ <script>
+   const form = document.getElementById("ticket-form");
+   const statusBox = document.getElementById("status");
+
+
+   const getUserId = async () => {
+     const stored = localStorage.getItem("userId");
+     if (stored) return stored;
+
+
+     const email = localStorage.getItem("userEmail");
+     if (!email) return null;
+
+
+     try {
+       const res = await fetch(`/api/users/by-email?email=${encodeURIComponent(email)}`);
+       if (!res.ok) return null;
+       const data = await res.json();
+       if (data.userId) {
+         localStorage.setItem("userId", data.userId);
+         return data.userId;
+       }
+     } catch (err) {
+       return null;
+     }
+     return null;
+   };
+
+
+   // Prefetch userId if possible
+   getUserId();
+
+
+   form.addEventListener("submit", async (e) => {
+     e.preventDefault();
+     statusBox.textContent = "Saving...";
+
+
+     const userId = await getUserId();
+     if (!userId) {
+       statusBox.textContent = "No userId found. Please log in again.";
+       return;
+     }
+
+
+     const data = Object.fromEntries(new FormData(form).entries());
+     const payload = {
+       title: data.title,
+       description: data.description,
+       userId,
+       email: localStorage.getItem("userEmail") || undefined,
+     };
+
+
+     try {
+       const res = await fetch("/api/tickets", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(payload),
+       });
+       const body = await res.json();
+       statusBox.textContent = res.ok ? "Saved!" : (body.message || "Failed");
+     } catch (err) {
+       statusBox.textContent = "Error saving ticket";
+     }
+   });
+ </script>
 </body>
 </html>
+
+
+

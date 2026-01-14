@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Create Ticket (Placeholder)</title>
+ <style>
+   body { font-family: Arial, sans-serif; padding: 16px; }
+   form { max-width: 520px; display: grid; gap: 8px; }
+   label { display: flex; flex-direction: column; font-weight: 700; }
+   input, textarea, select { padding: 8px; font-size: 14px; }
+   button { padding: 10px 12px; font-size: 14px; }
+   #status { margin-top: 8px; }
+ </style>
+</head>
+<body>
+ <h1>Create Ticket (Placeholder)</h1>
+ <form id="ticket-form">
+   <label>Ticket Title
+     <input name="title" value="VPN connection keeps dropping every 5 minutes" required>
+   </label>
+   <label>Ticket Description
+     <textarea name="description" rows="4" required>I am experiencing frequent disconnections with the VPN. It drops every 5 minutes and I have to reconnect manually. This is affecting my productivity.</textarea>
+   </label>
+   <label>User ID
+     <input name="userId" value="6965af719336a9999239e42a" required>
+   </label>
+   <label>Date (ISO or YYYY-MM-DD)
+     <input name="date" type="datetime-local">
+   </label>
+   <label>Status
+     <select name="status">
+       <option>Open</option>
+       <option>In Progress</option>
+       <option>Resolved</option>
+     </select>
+   </label>
+   <label>Priority
+     <select name="priority">
+       <option>High</option>
+       <option>Medium</option>
+       <option>Low</option>
+     </select>
+   </label>
+   <label>Category Name
+     <input name="categoryName" value="Network and VPN" required>
+   </label>
+   <button type="submit">Create Ticket</button>
+   <div id="status"></div>
+ </form>
+
+
+ <script>
+   const form = document.getElementById("ticket-form");
+   const statusBox = document.getElementById("status");
+
+
+   form.addEventListener("submit", async (e) => {
+     e.preventDefault();
+     statusBox.textContent = "Saving...";
+
+
+     const data = Object.fromEntries(new FormData(form).entries());
+     if (data.date && !isNaN(Date.parse(data.date))) {
+       data.date = new Date(data.date).toISOString();
+     }
+
+
+     try {
+       const res = await fetch("/api/tickets", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(data),
+       });
+       const body = await res.json();
+       statusBox.textContent = res.ok ? "Saved!" : (body.message || "Failed");
+     } catch (err) {
+       statusBox.textContent = "Error saving ticket";
+     }
+   });
+ </script>
+</body>
+</html>
+
+
+

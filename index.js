@@ -58,6 +58,21 @@ const categorySchema = new mongoose.Schema(
 
 const CategoryModel = mongoose.model("Category", categorySchema, "category");
 
+const ticketSchema = new mongoose.Schema(
+  {
+    "ticket title": String,
+    "ticket description": String,
+    userId: String,
+    date: Date,
+    status: String,
+    priority: String,
+    "category name": String,
+  },
+  { collection: "tickets" }
+);
+
+const TicketModel = mongoose.model("tickets", ticketSchema);
+
 app.get("/getUsers", async (req, res) => {
   const userData = await UserModel.find();
   res.json(userData);
@@ -99,6 +114,7 @@ app.post("/auth/login", async (req, res) => {
 
   const authUser = isDbMatch ? user : seedMatch;
   const role = (authUser.role || "").toLowerCase();
+  const userId = authUser._id ? authUser._id.toString() : `seed-${role || "user"}`;
 
   let redirect = "/";
   if (role === "staff") redirect = "/staff";
@@ -108,8 +124,116 @@ app.post("/auth/login", async (req, res) => {
   return res.json({
     message: "Login successful",
     role: authUser.role,
+    userId,
     redirect,
   });
+});
+
+app.get("/api/users/by-email", async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ message: "email is required" });
+
+  try {
+    const user = await UserModel.findOne({ email: new RegExp(`^${email}$`, "i") }).lean();
+    if (user?._id) {
+      return res.json({
+        userId: user._id.toString(),
+        role: user.role,
+        name: user.name,
+        source: "db",
+      });
+    }
+
+    const seedMatch = seededUsers.find((u) => u.email === email);
+    if (seedMatch) {
+      return res.json({
+        userId: `seed-${(seedMatch.role || "user").toLowerCase()}`,
+        role: seedMatch.role,
+        name: seedMatch.name,
+        source: "seed",
+      });
+    }
+
+    return res.status(404).json({ message: "User not found" });
+  } catch (err) {
+    console.error("Error fetching user by email", err);
+    return res.status(500).json({ message: "Failed to fetch user" });
+  }
+});
+
+app.get("/api/tickets", async (req, res) => {
+  try {
+    const { unassigned } = req.query;
+    const filter = {};
+
+    if (unassigned === "1") {
+      filter.$or = [
+        { "category name": { $exists: false } },
+        { "category name": "" },
+        { "category name": null },
+      ];
+    }
+
+    const tickets = await TicketModel.find(filter).sort({ date: -1 }).lean();
+    const normalized = tickets.map((t) => ({
+      id: t._id?.toString() || "",
+      title: t["ticket title"] || "",
+      description: t["ticket description"] || "",
+      userId: t.userId || "",
+      status: t.status || "",
+      priority: t.priority || "",
+      category: t["category name"] || "",
+      date: t.date || null,
+    }));
+
+    res.json(normalized);
+  } catch (err) {
+    console.error("Error fetching tickets", err);
+    res.status(500).json({ message: "Failed to load tickets" });
+  }
+});
+
+app.post("/api/tickets", async (req, res) => {
+  try {
+    const { title, description, userId: incomingUserId, email } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({ message: "title and description are required." });
+    }
+
+    let userId = incomingUserId;
+
+    if (!userId && email) {
+      const dbUser = await UserModel.findOne({ email: new RegExp(`^${email}$`, "i") }).lean();
+      if (dbUser?._id) {
+        userId = dbUser._id.toString();
+      } else {
+        const seed = seededUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+        if (seed) {
+          userId = `seed-${(seed.role || "user").toLowerCase()}`;
+        }
+      }
+    }
+
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required." });
+    }
+
+    const doc = await TicketModel.create({
+      "ticket title": title,
+      "ticket description": description,
+      userId,
+      date: new Date(),
+      status: "",
+      priority: "",
+      "category name": "",
+    });
+
+    res.status(201).json({ message: "Ticket created", ticket: doc });
+  } catch (err) {
+    console.error("Error creating ticket", err);
+    res.status(500).json({ message: "Failed to create ticket" });
+  }
 });
 
 app.listen(PORT, () => {
