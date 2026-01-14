@@ -1,0 +1,31 @@
+<div class="modal-overlay hidden" id="edit-modal" role="dialog" aria-modal="true">
+    <div class="modal-card" role="document">
+      <header class="modal-header">
+        <h3 class="modal-title">Edit Category</h3>
+        <button class="modal-close" id="edit-modal-close" aria-label="Close dialog">×</button>
+      </header>
+      <div class="modal-sub">Update the category for this ticket</div>
+
+      <div class="modal-body">
+        <div class="modal-row"><strong>Ticket ID:</strong> <span class="modal-ticket-id" id="edit-ticket-id">TKT-101</span></div>
+        <div class="modal-row"><strong>Title:</strong> <span class="modal-ticket-title" id="edit-ticket-title">VPN Connection Issues</span></div>
+        <div class="modal-row"><strong>Current Category:</strong> <span class="modal-desc" id="edit-current-category">Network & VPN</span></div>
+
+        <label class="modal-label" for="edit-category-select">New Category</label>
+        <select id="edit-category-select" class="modal-select">
+          <option value="">Select a category</option>
+          <option value="network">Network & VPN</option>
+          <option value="software">Software Installation</option>
+          <option value="account">Account Management</option>
+          <option value="hardware">Hardware Issues</option>
+          <option value="email">Email & Communication</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="modal-btn" id="edit-modal-cancel">Cancel</button>
+        <button class="modal-btn primary" id="edit-modal-update">Update Category</button>
+      </footer>
+    </div>
+  </div>

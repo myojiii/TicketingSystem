@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TickIT | Admin Dashboard</title>
   <link rel="stylesheet" href="/styles/admin.css">
+  <link rel="stylesheet" href="/styles/admin-modals.css">
 </head>
 <body>
   <div class="layout">
@@ -62,24 +64,24 @@
           <table class="tickets-table">
             <thead>
               <tr>
-                <th>Ticket ID</th>
+                <th>Ticket Title</th>
                 <th>Ticket Description</th>
                 <th>Date Submitted</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>TKT-105</td>
+              <tr data-ticket-id="TKT-105">
+                <td>Intranet Access Issue</td>
                 <td>Cannot access company intranet portal</td>
                 <td>1/12/2026</td>
-                <td><button class="action-btn primary-btn">Assign Category</button></td>
+                <td><button class="action-btn primary-btn assign-category-btn">Assign Category</button></td>
               </tr>
-              <tr>
-                <td>TKT-106</td>
+              <tr data-ticket-id="TKT-106">
+                <td>3rd Floor Printer Malfunction</td>
                 <td>Printer not working on 3rd floor</td>
                 <td>1/12/2026</td>
-                <td><button class="action-btn primary-btn">Assign Category</button></td>
+                <td><button class="action-btn primary-btn assign-category-btn">Assign Category</button></td>
               </tr>
             </tbody>
           </table>
@@ -95,7 +97,7 @@
           <table class="tickets-table">
             <thead>
               <tr>
-                <th>Ticket ID</th>
+                <th>Ticket Title</th>
                 <th>Ticket Description</th>
                 <th>Date Submitted</th>
                 <th>Category</th>
@@ -104,26 +106,26 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>TKT-101</td>
+              <tr data-ticket-id="TKT-101">
+                <td>VPN Connection Issues</td>
                 <td>VPN connection keeps...</td>
                 <td>9/27/2025</td>
                 <td>Network & VPN</td>
                 <td><span class="status-badge in-progress">In Progress</span></td>
                 <td>
                   <div class="action-icons">
-                    <button class="icon-action-btn" title="View">
+                    <button class="icon-action-btn view-btn" title="View">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
                       </svg>
                     </button>
-                    <button class="icon-action-btn" title="Edit">
+                    <button class="icon-action-btn edit-btn" title="Edit">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z" fill="currentColor"></path>
                         <path d="m20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"></path>
                       </svg>
                     </button>
-                    <button class="icon-action-btn delete" title="Delete">
+                    <button class="icon-action-btn delete delete-btn" title="Delete">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12ZM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4Z" fill="currentColor"></path>
                       </svg>
@@ -131,26 +133,26 @@
                   </div>
                 </td>
               </tr>
-              <tr>
-                <td>TKT-102</td>
+              <tr data-ticket-id="TKT-102">
+                <td>Office 365 Installation Request</td>
                 <td>Need Microsoft Office 365...</td>
                 <td>11/28/2025</td>
                 <td>Software Installation</td>
                 <td><span class="status-badge in-progress">In Progress</span></td>
                 <td>
                   <div class="action-icons">
-                    <button class="icon-action-btn" title="View">
+                    <button class="icon-action-btn view-btn" title="View">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
                       </svg>
                     </button>
-                    <button class="icon-action-btn" title="Edit">
+                    <button class="icon-action-btn edit-btn" title="Edit">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z" fill="currentColor"></path>
                         <path d="m20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"></path>
                       </svg>
                     </button>
-                    <button class="icon-action-btn delete" title="Delete">
+                    <button class="icon-action-btn delete delete-btn" title="Delete">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12ZM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4Z" fill="currentColor"></path>
                       </svg>
@@ -158,26 +160,26 @@
                   </div>
                 </td>
               </tr>
-              <tr>
-                <td>TKT-103</td>
+              <tr data-ticket-id="TKT-103">
+                <td>Password Reset Needed</td>
                 <td>Password reset required...</td>
                 <td>12/12/2025</td>
                 <td>Account Management</td>
                 <td><span class="status-badge in-progress">In Progress</span></td>
                 <td>
                   <div class="action-icons">
-                    <button class="icon-action-btn" title="View">
+                    <button class="icon-action-btn view-btn" title="View">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
                       </svg>
                     </button>
-                    <button class="icon-action-btn" title="Edit">
+                    <button class="icon-action-btn edit-btn" title="Edit">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z" fill="currentColor"></path>
                         <path d="m20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"></path>
                       </svg>
                     </button>
-                    <button class="icon-action-btn delete" title="Delete">
+                    <button class="icon-action-btn delete delete-btn" title="Delete">
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12ZM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4Z" fill="currentColor"></path>
                       </svg>
@@ -187,10 +189,10 @@
               </tr>
             </tbody>
           </table>
+        </section>
       </div>
     </section>
   </div>
-
   <script src="/scripts/staff.js"></script>
   <script src="/scripts/admin.js"></script>
 </body>

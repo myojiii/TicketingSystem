@@ -1,0 +1,23 @@
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay hidden" id="delete-modal" role="dialog" aria-modal="true">
+  <div class="modal-card" role="document">
+    <header class="modal-header">
+      <h3 class="modal-title">Delete Ticket</h3>
+      <button class="modal-close" id="delete-modal-close" aria-label="Close dialog">×</button>
+    </header>
+    <div class="modal-sub">Are you sure you want to delete this ticket?</div>
+
+    <div class="modal-body">
+      <div class="delete-warning">
+        <div class="delete-warning-text">
+          <strong>Warning:</strong> This action cannot be undone. Deleting this ticket will permanently remove all associated conversations and data.
+        </div>
+      </div>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="modal-btn" id="delete-modal-cancel">Cancel</button>
+      <button class="modal-btn danger" id="delete-modal-delete">Delete Ticket</button>
+    </footer>
+  </div>
+</div>
