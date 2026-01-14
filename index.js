@@ -98,8 +98,8 @@ app.post("/auth/login", async (req, res) => {
   }
 
   const authUser = isDbMatch ? user : seedMatch;
+  const role = (authUser.role || "").toLowerCase();
 
-  const role = user.role?.toLowerCase() || "";
   let redirect = "/";
   if (role === "staff") redirect = "/staff";
   if (role === "admin") redirect = "/admin";
