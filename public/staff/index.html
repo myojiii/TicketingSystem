@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TickIT | Staff Dashboard</title>
+  <link rel="stylesheet" href="/styles/staff.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <img src="/assets/logo.png" alt="TickIT logo" class="logo">
+          <div class="brand-text">
+            <div class="brand-name">TickIT</div>
+            <div class="brand-sub">Ticketing System</div>
+          </div>
+        </div>
+
+        <button class="nav-btn" type="button">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm.5 2a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-13ZM8 7h8v2H8V7Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z"></path>
+            </svg>
+          </span>
+          <span>Manage Ticket</span>
+        </button>
+      </div>
+
+      <div class="help-card">
+        <div class="help-title">Need Help?</div>
+        <div class="help-text">Chat with our team</div>
+        <div class="help-status">
+          <span class="dot"></span>
+          <span>Click the chat button</span>
+        </div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <header class="topbar">
+        <button class="icon-btn" type="button" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7.5h16v1.5H4V7.5Zm0 4h16v1.5H4v-1.5Zm0 4h16v1.5H4v-1.5Z"></path>
+          </svg>
+        </button>
+        <div class="topbar-text">
+          <div class="topbar-title">Manage Ticket</div>
+          <div class="topbar-sub">View and manage your support tickets</div>
+        </div>
+      </header>
+
+      <div class="scroll-area">
+        <section class="tickets">
+          <header class="section-head">
+            <div class="section-title">My Tickets</div>
+            <div class="section-sub">Track and manage your support requests</div>
+          </header>
+
+          <div class="filters">
+            <div class="filter dropdown">
+              <button class="filter-btn" id="category-toggle" type="button">
+                <span class="filter-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4.75 5.5h14.5l-5.9 6.8v4.7l-2.7 1.5v-6.2L4.75 5.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path>
+                  </svg>
+                </span>
+                <span id="category-label">All Categories</span>
+                <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m8.5 10 3.5 3.5L15.5 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                </svg>
+              </button>
+              <div class="dropdown-menu hidden" id="category-menu"></div>
+            </div>
+
+            <div class="filter dropdown">
+              <button class="filter-btn" id="status-toggle" type="button">
+                <span id="status-label">All Statuses</span>
+                <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m8.5 10 3.5 3.5L15.5 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                </svg>
+              </button>
+              <div class="dropdown-menu hidden" id="status-menu"></div>
+            </div>
+          </div>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 101</div>
+                <div class="pill in-progress">In Progress</div>
+                <div class="pill high">High</div>
+              </div>
+              <h3 class="ticket-title">VPN connection keeps dropping every 5 minutes</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Network &amp; VPN</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/27/2025</span>
+              </div>
+            </div>
+            <a href="/staff/details.html" class="ghost-btn" role="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </a>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <a href="/staff/details.html" class="ghost-btn" role="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </a>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <button class="ghost-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </button>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <button class="ghost-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </button>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <button class="ghost-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </button>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <button class="ghost-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </button>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <button class="ghost-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </button>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <button class="ghost-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </button>
+          </article>
+
+          <article class="ticket-card">
+            <div class="ticket-info">
+              <div class="ticket-row">
+                <div class="ticket-id">TKT- 102</div>
+                <div class="pill open">Open</div>
+                <div class="pill medium">Medium</div>
+              </div>
+              <h3 class="ticket-title">Need Microsoft Office 365 installed on new laptop</h3>
+              <div class="ticket-meta">
+                <span class="meta-text">Software Installation</span>
+                <span class="dot-sep">•</span>
+                <span class="meta-text">9/28/2025</span>
+              </div>
+            </div>
+            <button class="ghost-btn" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              </svg>
+              <span>View Details</span>
+            </button>
+          </article>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script src="/scripts/staff.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TickIT | Admin</title>
+  <style>
+    :root {
+      --bg: #f6f9fb;
+      --text: #1f2d4a;
+      --muted: #6f7a8f;
+      --primary: #4a3bff;
+    }
+    body {
+      margin: 0;
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 32px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      max-width: 540px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+    p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    a {
+      display: inline-block;
+      margin-top: 12px;
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Welcome, Admin!</h1>
+    <p>You are signed in as an admin. Build out your admin dashboard here.</p>
+    <a href="/">Back to Sign In</a>
+  </div>
+</body>
+</html>

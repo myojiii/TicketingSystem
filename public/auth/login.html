@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TickIT | Sign In</title>
+  <link rel="stylesheet" href="/styles/login.css">
+</head>
+<body>
+  <main class="page">
+    <section class="auth-card">
+      <header class="auth-header">
+        <h1>Sign In To Your Account</h1>
+        <p class="subtitle">Welcome to TickIT!</p>
+      </header>
+
+      <div id="message" class="message hidden" role="alert"></div>
+
+      <form id="login-form" class="auth-form" novalidate>
+        <label class="field">
+          <span class="field-label">Email Address</span>
+          <div class="input-wrap">
+            <span class="icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4.5 5.75h15a.75.75 0 0 1 .75.75v11a.75.75 0 0 1-.75.75h-15a.75.75 0 0 1-.75-.75v-11a.75.75 0 0 1 .75-.75Zm0-1.5A2.25 2.25 0 0 0 2.25 6.5v11A2.25 2.25 0 0 0 4.5 19.75h15A2.25 2.25 0 0 0 21.75 17.5v-11A2.25 2.25 0 0 0 19.5 4.25h-15Z"></path>
+                <path d="m3.78 7.3 7.86 5.25a.75.75 0 0 0 .84 0L20.34 7.3a.75.75 0 1 0-.84-1.2L11.98 10.9 4.62 6.1a.75.75 0 1 0-.84 1.2Z"></path>
+              </svg>
+            </span>
+            <input type="email" name="email" autocomplete="email" placeholder="Email Address" required>
+          </div>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Password</span>
+          <div class="input-wrap">
+            <span class="icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 9a5 5 0 0 1 10 0v1h.75A1.75 1.75 0 0 1 19.5 11.75v7.5A1.75 1.75 0 0 1 17.75 21H6.25A1.75 1.75 0 0 1 4.5 19.25v-7.5A1.75 1.75 0 0 1 6.25 10H7V9Zm1.5 1V9a3.5 3.5 0 1 1 7 0v1h-7Z"></path>
+              </svg>
+            </span>
+            <input id="password" type="password" name="password" autocomplete="current-password" placeholder="Password" required>
+            <button type="button" class="icon-btn toggle-visibility" aria-label="Show password">
+              <svg class="eye-open is-hidden" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 6c-4.84 0-8.73 3.05-10.5 6 1.77 2.95 5.66 6 10.5 6s8.73-3.05 10.5-6c-1.77-2.95-5.66-6-10.5-6Zm0 10a4 4 0 1 1 .001-8.001A4 4 0 0 1 12 16Zm0-1.5a2.5 2.5 0 1 0 .001-4.999A2.5 2.5 0 0 0 12 14.5Z"></path>
+              </svg>
+              <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m4.41 3 16.97 16.97-1.06 1.06-2.36-2.36A11.93 11.93 0 0 1 12 18c-4.84 0-8.73-3.05-10.5-6a13.6 13.6 0 0 1 4.11-4.24L3.35 4.06 4.41 3Zm3.24 5.42A7.18 7.18 0 0 0 5.35 9.5 11.11 11.11 0 0 0 2.89 12 11.04 11.04 0 0 0 12 17.25c1.47 0 2.85-.27 4.09-.74l-2.13-2.13a3.49 3.49 0 0 1-4.34-4.34l-1.97-1.97Zm4.29 4.29L9.29 9.64a2 2 0 0 0 2.65 2.65Zm1.91-1.91 1.91 1.91a2 2 0 0 0-1.91-1.91Zm4.82-.58c-.6-.8-1.35-1.6-2.24-2.32L14.9 6.62A11.5 11.5 0 0 1 17 7.39c1.51.67 2.77 1.63 3.62 2.74-.41.54-.88 1.07-1.4 1.58-.2.2-.42.4-.64.6l-1.07-1.07Z"></path>
+              </svg>
+            </button>
+          </div>
+        </label>
+
+        <div class="actions-row">
+          <label class="checkbox">
+            <input type="checkbox" name="remember" checked>
+            <span class="custom-check" aria-hidden="true"></span>
+            <span class="checkbox-label">Remember Me</span>
+          </label>
+          <a class="link" href="#">Forgot Password</a>
+        </div>
+
+        <button type="submit" class="primary-btn">
+          <span>Sign In</span>
+          <span aria-hidden="true" class="arrow">↪</span>
+        </button>
+
+        <p class="helper-text">Don’t have an account? <a class="link" href="#">Sign Up</a></p>
+      </form>
+
+      <div class="divider" role="presentation">
+  </main>
+
+  <script src="/scripts/login.js"></script>
+</body>
+</html>
