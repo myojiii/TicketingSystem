@@ -3,58 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TickIT | Admin</title>
-  <style>
-    :root {
-      --bg: #f6f9fb;
-      --text: #1f2d4a;
-      --muted: #6f7a8f;
-      --primary: #4a3bff;
-    }
-    body {
-      margin: 0;
-      font-family: "Manrope", "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 28px 32px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      max-width: 540px;
-      width: 100%;
-      text-align: center;
-    }
-    h1 {
-      margin: 0 0 6px;
-      font-size: 28px;
-    }
-    p {
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    a {
-      display: inline-block;
-      margin-top: 12px;
-      color: var(--primary);
-      font-weight: 700;
-      text-decoration: none;
-    }
-    a:hover { text-decoration: underline; }
-  </style>
+  <title>TickIT | Admin Dashboard</title>
+  <link rel="stylesheet" href="/styles/admin.css">
 </head>
 <body>
-  <div class="card">
-    <h1>Welcome, Admin!</h1>
-    <p>You are signed in as an admin. Build out your admin dashboard here.</p>
-    <a href="/">Back to Sign In</a>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <img src="/assets/logo.png" alt="TickIT logo" class="logo">
+          <div class="brand-text">
+            <div class="brand-name">TickIT</div>
+            <div class="brand-sub">Ticketing System</div>
+          </div>
+        </div>
+
+        <button class="nav-btn" type="button">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm.5 2a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-13ZM8 7h8v2H8V7Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z"></path>
+            </svg>
+          </span>
+          <span>Manage Ticket</span>
+        </button>
+      </div>
+
+      <div class="help-card">
+        <div class="help-title">Need Help?</div>
+        <div class="help-text">Chat with our team</div>
+        <div class="help-status">
+          <span class="dot"></span>
+          <span>Click the chat button</span>
+        </div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <header class="topbar">
+        <button class="icon-btn" type="button" aria-label="Toggle menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7.5h16v1.5H4V7.5Zm0 4h16v1.5H4v-1.5Zm0 4h16v1.5H4v-1.5Z"></path>
+          </svg>
+        </button>
+        <div class="topbar-text">
+          <div class="topbar-title">Manage Ticket</div>
+          <div class="topbar-sub">Submit a new support request</div>
+        </div>
+      </header>
+
+      <div class="scroll-area">
+        <!-- Unassigned Category Section -->
+        <section class="tickets-section">
+          <header class="section-head">
+            <div class="section-title">Unassigned Category</div>
+            <div class="section-sub">Tickets that need category assignment</div>
+          </header>
+
+          <table class="tickets-table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Ticket Description</th>
+                <th>Date Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TKT-105</td>
+                <td>Cannot access company intranet portal</td>
+                <td>1/12/2026</td>
+                <td><button class="action-btn primary-btn">Assign Category</button></td>
+              </tr>
+              <tr>
+                <td>TKT-106</td>
+                <td>Printer not working on 3rd floor</td>
+                <td>1/12/2026</td>
+                <td><button class="action-btn primary-btn">Assign Category</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- All Tickets Section -->
+        <section class="tickets-section">
+          <header class="section-head">
+            <div class="section-title">All Tickets</div>
+            <div class="section-sub">Complete support of all the tickets</div>
+          </header>
+
+          <table class="tickets-table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Ticket Description</th>
+                <th>Date Submitted</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TKT-101</td>
+                <td>VPN connection keeps...</td>
+                <td>9/27/2025</td>
+                <td>Network & VPN</td>
+                <td><span class="status-badge in-progress">In Progress</span></td>
+                <td>
+                  <div class="action-icons">
+                    <button class="icon-action-btn" title="View">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+                      </svg>
+                    </button>
+                    <button class="icon-action-btn" title="Edit">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z" fill="currentColor"></path>
+                        <path d="m20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"></path>
+                      </svg>
+                    </button>
+                    <button class="icon-action-btn delete" title="Delete">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12ZM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4Z" fill="currentColor"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>TKT-102</td>
+                <td>Need Microsoft Office 365...</td>
+                <td>11/28/2025</td>
+                <td>Software Installation</td>
+                <td><span class="status-badge in-progress">In Progress</span></td>
+                <td>
+                  <div class="action-icons">
+                    <button class="icon-action-btn" title="View">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+                      </svg>
+                    </button>
+                    <button class="icon-action-btn" title="Edit">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z" fill="currentColor"></path>
+                        <path d="m20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"></path>
+                      </svg>
+                    </button>
+                    <button class="icon-action-btn delete" title="Delete">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12ZM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4Z" fill="currentColor"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>TKT-103</td>
+                <td>Password reset required...</td>
+                <td>12/12/2025</td>
+                <td>Account Management</td>
+                <td><span class="status-badge in-progress">In Progress</span></td>
+                <td>
+                  <div class="action-icons">
+                    <button class="icon-action-btn" title="View">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 6c-4.24 0-7.79 2.53-9.5 6 1.71 3.47 5.26 6 9.5 6s7.79-2.53 9.5-6c-1.71-3.47-5.26-6-9.5-6Zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4a4 4 0 0 1 0 8Zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+                      </svg>
+                    </button>
+                    <button class="icon-action-btn" title="Edit">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z" fill="currentColor"></path>
+                        <path d="m20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z" fill="currentColor"></path>
+                      </svg>
+                    </button>
+                    <button class="icon-action-btn delete" title="Delete">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12ZM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4Z" fill="currentColor"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+    </section>
   </div>
+
+  <script src="/scripts/staff.js"></script>
 </body>
 </html>
