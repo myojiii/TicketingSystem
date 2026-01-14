@@ -41,6 +41,13 @@ const userSchema = new mongoose.Schema(
 
 const UserModel = mongoose.model("users", userSchema);
 
+// Simple in-memory seed accounts (plaintext for demo only)
+const seededUsers = [
+  { name: "Admin", email: "admin@gmail.com", password: "Admin123", role: "Admin" },
+  { name: "Staff", email: "staff@gmail.com", password: "Staff123", role: "Staff" },
+  { name: "Client1", email: "client1@gmail.com", password: "Client123", role: "Client" },
+];
+
 const categorySchema = new mongoose.Schema(
   {
     "category code": String,
@@ -79,11 +86,18 @@ app.post("/auth/login", async (req, res) => {
     return res.status(400).json({ message: "Email and password are required." });
   }
 
+  // Try DB first
   const user = await UserModel.findOne({ email });
+  const isDbMatch = user && user.password === password;
 
-  if (!user || user.password !== password) {
+  // Fallback to seeded accounts
+  const seedMatch = seededUsers.find((u) => u.email === email && u.password === password);
+
+  if (!isDbMatch && !seedMatch) {
     return res.status(401).json({ message: "Invalid email or password." });
   }
+
+  const authUser = isDbMatch ? user : seedMatch;
 
   const role = user.role?.toLowerCase() || "";
   let redirect = "/";
@@ -93,7 +107,7 @@ app.post("/auth/login", async (req, res) => {
 
   return res.json({
     message: "Login successful",
-    role: user.role,
+    role: authUser.role,
     redirect,
   });
 });
