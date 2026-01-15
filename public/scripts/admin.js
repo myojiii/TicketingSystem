@@ -41,6 +41,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   };
 
+  const truncateText = (text, maxLength = 150) => {
+    if (!text) return 'No description';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, 50) + '...';
+  };
+
   const getStatusClass = (status) =>
     status ? status.toLowerCase().replace(/\s+/g, '-') : '';
 
@@ -173,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           unassignedTbody.innerHTML = unassigned.map(t => `
             <tr data-ticket-id="${t.id}">
               <td>${t.title || 'Untitled'}</td>
-              <td>${t.description || 'No description'}</td>
+              <td>${truncateText(t.description, 100)}</td>
               <td>${formatDate(t.date)}</td>
               <td><button class="action-btn primary-btn assign-category-btn">Assign Category</button></td>
             </tr>
@@ -190,7 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           allTicketsTbody.innerHTML = assigned.map(t => `
             <tr data-ticket-id="${t.id}">
               <td>${t.title || 'Untitled'}</td>
-              <td>${t.description || 'No description'}</td>
+              <td>${truncateText(t.description, 100)}</td>
               <td>${formatDate(t.date)}</td>
               <td>${t.category || 'Unassigned'}</td>
               <td><span class="status-badge ${getStatusClass(t.status)}">${t.status || 'Pending'}</span></td>
@@ -361,4 +367,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   await populateCategories();
   await loadTickets();
   setInterval(loadTickets, 10000);
-});
+}); 

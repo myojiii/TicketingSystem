@@ -73,6 +73,20 @@ const ticketSchema = new mongoose.Schema(
 
 const TicketModel = mongoose.model("tickets", ticketSchema);
 
+// Message Schema for chat functionality
+const messageSchema = new mongoose.Schema(
+  {
+    ticketId: String,
+    senderId: String,
+    senderName: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now },
+  },
+  { collection: "messages" }
+);
+
+const MessageModel = mongoose.model("messages", messageSchema);
+
 app.get("/getUsers", async (req, res) => {
   const userData = await UserModel.find();
   res.json(userData);
@@ -161,14 +175,12 @@ app.get("/api/users/by-email", async (req, res) => {
   }
 });
 
-// Replace ONLY the app.get("/api/tickets", ...) section with this:
-
+// GET ALL TICKETS (for admin/staff)
 app.get("/api/tickets", async (req, res) => {
   try {
     const { unassigned, assigned } = req.query;
     let filter = {};
 
-    // If unassigned parameter is provided, filter for tickets without category
     if (unassigned === "1") {
       filter = {
         $or: [
@@ -178,24 +190,30 @@ app.get("/api/tickets", async (req, res) => {
         ]
       };
     } 
-    // If assigned parameter is provided, filter for tickets with category
     else if (assigned === "1") {
       filter = {
         "category name": { $exists: true, $ne: "", $ne: null }
       };
     }
-    // If no parameters, return ALL tickets (filter remains empty object)
 
     const tickets = await TicketModel.find(filter).sort({ date: -1 }).lean();
-    const normalized = tickets.map((t) => ({
-      id: t._id?.toString() || "",
-      title: t["ticket title"] || "",
-      description: t["ticket description"] || "",
-      userId: t.userId || "",
-      status: t.status || "",
-      priority: t.priority || "",
-      category: t["category name"] || "",
-      date: t.date || null,
+    
+    // Check for agent replies for each ticket
+    const normalized = await Promise.all(tickets.map(async (t) => {
+      const messages = await MessageModel.find({ ticketId: t._id?.toString() }).lean();
+      const hasAgentReply = messages.some(m => m.senderId !== t.userId);
+      
+      return {
+        id: t._id?.toString() || "",
+        title: t["ticket title"] || "",
+        description: t["ticket description"] || "",
+        userId: t.userId || "",
+        status: t.status || "",
+        priority: t.priority || "",
+        category: t["category name"] || "",
+        date: t.date || null,
+        hasAgentReply,
+      };
     }));
 
     res.json(normalized);
@@ -204,6 +222,43 @@ app.get("/api/tickets", async (req, res) => {
     res.status(500).json({ message: "Failed to load tickets" });
   }
 });
+
+// GET TICKETS BY USER ID (for client dashboard)
+app.get("/api/tickets/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ message: "userId is required" });
+    }
+
+    const tickets = await TicketModel.find({ userId }).sort({ date: -1 }).lean();
+    
+    // Check for agent replies for each ticket
+    const normalized = await Promise.all(tickets.map(async (t) => {
+      const messages = await MessageModel.find({ ticketId: t._id?.toString() }).lean();
+      const hasAgentReply = messages.some(m => m.senderId !== userId);
+      
+      return {
+        id: t._id?.toString() || "",
+        title: t["ticket title"] || "",
+        description: t["ticket description"] || "",
+        userId: t.userId || "",
+        status: t.status || "",
+        priority: t.priority || "",
+        category: t["category name"] || "",
+        date: t.date || null,
+        hasAgentReply,
+      };
+    }));
+
+    res.json(normalized);
+  } catch (err) {
+    console.error("Error fetching user tickets", err);
+    res.status(500).json({ message: "Failed to load user tickets" });
+  }
+});
+
 app.post("/api/tickets", async (req, res) => {
   try {
     const { title, description, userId: incomingUserId, email } = req.body;
@@ -235,7 +290,7 @@ app.post("/api/tickets", async (req, res) => {
       "ticket description": description,
       userId,
       date: new Date(),
-      status: "",
+      status: "Pending",
       priority: "",
       "category name": "",
     });
@@ -247,11 +302,7 @@ app.post("/api/tickets", async (req, res) => {
   }
 });
 
-// ========================================
-// NEW ENDPOINTS FOR ADMIN FUNCTIONALITY
-// ========================================
-
-// UPDATE TICKET CATEGORY (for assign category modal)
+// UPDATE TICKET CATEGORY
 app.put("/api/tickets/:id/category", async (req, res) => {
   try {
     const { id } = req.params;
@@ -278,7 +329,7 @@ app.put("/api/tickets/:id/category", async (req, res) => {
   }
 });
 
-// UPDATE TICKET (for edit modal - updates category, status, priority)
+// UPDATE TICKET
 app.put("/api/tickets/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -317,6 +368,9 @@ app.delete("/api/tickets/:id", async (req, res) => {
       return res.status(404).json({ message: "Ticket not found" });
     }
 
+    // Also delete associated messages
+    await MessageModel.deleteMany({ ticketId: id });
+
     res.json({ message: "Ticket deleted successfully" });
   } catch (err) {
     console.error("Error deleting ticket:", err);
@@ -324,7 +378,7 @@ app.delete("/api/tickets/:id", async (req, res) => {
   }
 });
 
-// GET SINGLE TICKET (for view modal)
+// GET SINGLE TICKET
 app.get("/api/tickets/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -350,6 +404,51 @@ app.get("/api/tickets/:id", async (req, res) => {
   } catch (err) {
     console.error("Error fetching ticket:", err);
     res.status(500).json({ message: "Failed to fetch ticket" });
+  }
+});
+
+// ========================================
+// CHAT/MESSAGE ENDPOINTS
+// ========================================
+
+// GET MESSAGES FOR A TICKET
+app.get("/api/tickets/:ticketId/messages", async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+
+    const messages = await MessageModel.find({ ticketId })
+      .sort({ timestamp: 1 })
+      .lean();
+
+    res.json(messages);
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    res.status(500).json({ message: "Failed to fetch messages" });
+  }
+});
+
+// POST A MESSAGE TO A TICKET
+app.post("/api/tickets/:ticketId/messages", async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const { senderId, message, senderName } = req.body;
+
+    if (!senderId || !message) {
+      return res.status(400).json({ message: "senderId and message are required" });
+    }
+
+    const newMessage = await MessageModel.create({
+      ticketId,
+      senderId,
+      senderName: senderName || "User",
+      message,
+      timestamp: new Date(),
+    });
+
+    res.status(201).json({ message: "Message sent", data: newMessage });
+  } catch (err) {
+    console.error("Error sending message:", err);
+    res.status(500).json({ message: "Failed to send message" });
   }
 });
 
