@@ -1,12 +1,268 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const toggle = document.getElementById("toggle-convo");
   const convo = document.getElementById("conversation-card");
 
-  if (!toggle || !convo) return;
+  if (toggle && convo) {
+    toggle.addEventListener("click", () => {
+      const isHidden = convo.classList.contains("hidden");
+      convo.classList.toggle("hidden", !isHidden);
+      toggle.textContent = isHidden ? "Hide Conversation" : "View Conversation";
+    });
+  }
 
-  toggle.addEventListener("click", () => {
-    const isHidden = convo.classList.contains("hidden");
-    convo.classList.toggle("hidden", !isHidden);
-    toggle.textContent = isHidden ? "Hide Conversation" : "View Conversation";
-  });
+  const params = new URLSearchParams(window.location.search);
+  const ticketId = params.get("ticketId");
+  if (!ticketId) return;
+
+  const heroIdEl = document.querySelector(".hero-id");
+  const heroTitleEl = document.querySelector(".hero-title");
+  const heroDescEl = document.querySelector(".hero-desc");
+  const heroPills = document.querySelectorAll(".hero-header .pill");
+
+  const findRowByLabel = (labelText) => {
+    const rows = document.querySelectorAll(".detail-row");
+    const target = (labelText || "").toLowerCase();
+    for (const row of rows) {
+      const label = row.querySelector(".detail-label");
+      if (label && label.textContent.trim().toLowerCase().includes(target)) {
+        return row;
+      }
+    }
+    return null;
+  };
+
+  const assignedEl = findRowByLabel("assigned")?.querySelector(".detail-value");
+  const statusBox = findRowByLabel("status")?.querySelector(".select-box");
+  const priorityBox = findRowByLabel("priority")?.querySelector(".select-box");
+  const createdEl = findRowByLabel("created")?.querySelector(".detail-value");
+  const categoryEl = findRowByLabel("category")?.querySelector(".detail-value");
+  const contactNameEl = findRowByLabel("name")?.querySelector(".detail-value");
+  const contactEmailEl = findRowByLabel("email")?.querySelector(".detail-value");
+  const contactPhoneEl = findRowByLabel("phone")?.querySelector(".detail-value");
+
+  let currentTicket = null;
+
+  const normalize = (value = "") => value.toString().trim().toLowerCase();
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "No date";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const buildTicketId = (id = "") => {
+    if (!id) return "TKT";
+    return `TKT-${id.slice(-6).toUpperCase()}`;
+  };
+
+  const statusClass = (status = "") => {
+    const s = normalize(status);
+    if (s.includes("progress")) return "in-progress";
+    if (s.includes("resolved")) return "open";
+    if (s.includes("open")) return "open";
+    return "in-progress";
+  };
+
+  const priorityClass = (priority = "") => {
+    const p = normalize(priority);
+    if (p === "high") return "high";
+    if (p === "medium") return "medium";
+    if (p === "low") return "low";
+    return "";
+  };
+
+  const applyPillColor = (el, isGreen) => {
+    if (!el) return;
+    const greenBg = "#d8f5e3";
+    const greenText = "#1f7a3f";
+    el.style.background = isGreen ? greenBg : "";
+    el.style.color = isGreen ? greenText : "";
+  };
+
+  const renderTicket = (ticket) => {
+    if (!ticket) return;
+    currentTicket = ticket;
+
+    if (heroIdEl) heroIdEl.textContent = buildTicketId(ticket.id);
+    if (heroTitleEl) heroTitleEl.textContent = ticket.title || "Untitled Ticket";
+    if (heroDescEl) heroDescEl.textContent = ticket.description || "No description provided.";
+
+    const statusText = ticket.status || "Open";
+    const priorityText = ticket.priority || "Not Set";
+    const isResolved = normalize(statusText) === "resolved";
+    const isLow = normalize(priorityText) === "low";
+
+    if (heroPills?.[0]) {
+      heroPills[0].textContent = statusText;
+      heroPills[0].className = `pill ${statusClass(statusText)}`;
+      applyPillColor(heroPills[0], isResolved);
+    }
+    if (heroPills?.[1]) {
+      heroPills[1].textContent = priorityText;
+      const pClass = priorityClass(priorityText);
+      heroPills[1].className = pClass ? `pill ${pClass}` : "pill";
+      applyPillColor(heroPills[1], isLow);
+    }
+
+    if (assignedEl) {
+      assignedEl.textContent = ticket.assignedStaffName || "Unassigned";
+    }
+    if (statusBox) {
+      const span = statusBox.querySelector("span");
+      if (span) span.textContent = statusText;
+    }
+    if (priorityBox) {
+      const span = priorityBox.querySelector("span");
+      if (span) span.textContent = priorityText;
+    }
+    if (createdEl) {
+      createdEl.textContent = formatDate(ticket.date);
+    }
+    if (categoryEl) {
+      categoryEl.textContent = ticket.category || "Uncategorized";
+    }
+  };
+
+  const fetchTicket = async () => {
+    try {
+      const res = await fetch(`/api/tickets/${ticketId}`);
+      if (!res.ok) throw new Error("Failed to load ticket");
+      const data = await res.json();
+      renderTicket(data);
+      if (data?.userId) await fetchUser(data.userId);
+    } catch (err) {
+      console.error(err);
+      alert("Unable to load ticket details.");
+    }
+  };
+
+  const fetchUser = async (userId) => {
+    try {
+      const res = await fetch(`/api/users/id/${encodeURIComponent(userId)}`);
+      if (!res.ok) throw new Error("Failed to load user");
+      const user = await res.json();
+      const isClient = normalize(user.role) === "client";
+      if (isClient) {
+        if (contactNameEl) contactNameEl.textContent = user.name || "N/A";
+        if (contactEmailEl) contactEmailEl.textContent = user.email || "N/A";
+        const phoneVal = user.number || user.phone;
+        if (contactPhoneEl) contactPhoneEl.textContent = phoneVal || "Not provided";
+      } else {
+        if (contactNameEl) contactNameEl.textContent = "N/A";
+        if (contactEmailEl) contactEmailEl.textContent = "N/A";
+        if (contactPhoneEl) contactPhoneEl.textContent = "Not provided";
+      }
+    } catch (err) {
+      console.error(err);
+      if (contactNameEl) contactNameEl.textContent = "N/A";
+      if (contactEmailEl) contactEmailEl.textContent = "N/A";
+      if (contactPhoneEl) contactPhoneEl.textContent = "Not provided";
+    }
+  };
+
+  const updateTicket = async (payload) => {
+    try {
+      const res = await fetch(`/api/tickets/${ticketId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      const data = await res.json();
+      if (data?.ticket) renderTicket(data.ticket);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update ticket.");
+    }
+  };
+
+  const statuses = ["Open", "In Progress", "Resolved"];
+  const priorities = ["Low", "Medium", "High"];
+
+  const removeMenu = () => {
+    const existing = document.getElementById("inline-menu");
+    if (existing) existing.remove();
+    document.removeEventListener("click", handleOutsideClick, true);
+  };
+
+  const handleOutsideClick = (e) => {
+    const menu = document.getElementById("inline-menu");
+    if (!menu) return;
+    if (!menu.contains(e.target)) removeMenu();
+  };
+
+  const openMenu = (anchorEl, options, currentValue, onSelect) => {
+    removeMenu();
+    if (!anchorEl) return;
+
+    const rect = anchorEl.getBoundingClientRect();
+    const menu = document.createElement("div");
+    menu.id = "inline-menu";
+    menu.style.position = "fixed";
+    menu.style.top = `${rect.bottom + 6}px`;
+    menu.style.left = `${rect.left}px`;
+    menu.style.minWidth = `${rect.width}px`;
+    menu.style.background = "#fff";
+    menu.style.border = "1px solid #d8dfea";
+    menu.style.borderRadius = "10px";
+    menu.style.boxShadow = "0 10px 30px rgba(0,0,0,0.08)";
+    menu.style.zIndex = "9999";
+    menu.style.padding = "6px 0";
+
+    options.forEach((opt) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.textContent = opt;
+      item.style.width = "100%";
+      item.style.textAlign = "left";
+      item.style.padding = "10px 14px";
+      item.style.background = "transparent";
+      item.style.border = "none";
+      item.style.cursor = "pointer";
+      item.style.fontSize = "14px";
+      item.style.color = normalize(opt) === normalize(currentValue) ? "#4a3bff" : "#1f2d4a";
+      item.style.fontWeight = normalize(opt) === normalize(currentValue) ? "700" : "600";
+
+      item.addEventListener("click", () => {
+        onSelect(opt);
+        removeMenu();
+      });
+
+      item.addEventListener("mouseenter", () => {
+        item.style.background = "#f7f9fd";
+      });
+      item.addEventListener("mouseleave", () => {
+        item.style.background = "transparent";
+      });
+
+      menu.appendChild(item);
+    });
+
+    document.body.appendChild(menu);
+    setTimeout(() => {
+      document.addEventListener("click", handleOutsideClick, true);
+    }, 0);
+  };
+
+  if (statusBox) {
+    statusBox.style.cursor = "pointer";
+    statusBox.addEventListener("click", () => {
+      openMenu(statusBox, statuses, currentTicket?.status || "Open", async (choice) => {
+        await updateTicket({ status: choice });
+      });
+    });
+  }
+
+  if (priorityBox) {
+    priorityBox.style.cursor = "pointer";
+    priorityBox.addEventListener("click", () => {
+      openMenu(priorityBox, priorities, currentTicket?.priority || "Medium", async (choice) => {
+        await updateTicket({ priority: choice });
+      });
+    });
+  }
+
+  await fetchTicket();
 });
