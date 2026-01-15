@@ -142,6 +142,132 @@
       </footer>
     </div>
   </div>
+<!-- Edit Category Modal -->
+<div class="modal-overlay hidden" id="edit-modal" role="dialog" aria-modal="true">
+  <div class="modal-card" role="document">
+    <header class="modal-header">
+      <h3 class="modal-title">Edit Category</h3>
+      <button class="modal-close" id="edit-modal-close" aria-label="Close dialog">×</button>
+    </header>
+    <div class="modal-sub">Update the category for this ticket</div>
+
+    <div class="modal-body">
+      <div class="modal-row"><strong>Ticket ID:</strong> <span id="edit-ticket-id">-</span></div>
+      <div class="modal-row"><strong>Current Category:</strong> <span id="edit-current-category">-</span></div>
+
+      <label class="modal-label" for="edit-category-select">New Category</label>
+      <select id="edit-category-select" class="modal-select">
+        <option value="">Select a category</option>
+        <!-- Categories loaded from database -->
+      </select>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="modal-btn" id="edit-modal-cancel">Cancel</button>
+      <button class="modal-btn primary" id="edit-modal-update">Update Category</button>
+    </footer>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay hidden" id="delete-modal" role="dialog" aria-modal="true">
+  <div class="modal-card" role="document">
+    <header class="modal-header">
+      <h3 class="modal-title">Delete Ticket</h3>
+      <button class="modal-close" id="delete-modal-close" aria-label="Close dialog">×</button>
+    </header>
+    <div class="modal-sub">Are you sure you want to delete this ticket?</div>
+
+    <div class="modal-body">
+      <div class="modal-row"><strong>Ticket ID:</strong> <span id="delete-ticket-id">-</span></div>
+      
+      <div class="delete-warning">
+        <div class="delete-warning-text">
+          <strong>Warning:</strong> This action cannot be undone. Deleting this ticket will permanently remove all associated data.
+        </div>
+      </div>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="modal-btn" id="delete-modal-cancel">Cancel</button>
+      <button class="modal-btn danger" id="delete-modal-delete">Delete Ticket</button>
+    </footer>
+  </div>
+</div>
+
+<!-- View Ticket Modal -->
+<div class="modal-overlay hidden" id="view-modal" role="dialog" aria-modal="true">
+  <div class="modal-card large" role="document">
+    <header class="modal-header">
+      <h3 class="modal-title">Ticket Details</h3>
+      <button class="modal-close" id="view-modal-close" aria-label="Close dialog">×</button>
+    </header>
+
+    <div class="modal-body">
+      <div class="conversation-container">
+        <!-- Left Side: Ticket Info -->
+        <div class="conversation-info">
+          <div class="info-group">
+            <h4>Ticket Details</h4>
+            <div class="info-item">
+              <div class="info-label">Ticket ID</div>
+              <div class="info-value" id="view-ticket-id">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Title</div>
+              <div class="info-value" id="view-ticket-title">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Description</div>
+              <div class="info-value" id="view-ticket-description">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Status</div>
+              <div><span class="status-badge" id="view-ticket-status">-</span></div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Priority</div>
+              <div><span class="priority-badge" id="view-ticket-priority">-</span></div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Category</div>
+              <div class="info-value" id="view-ticket-category">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Created</div>
+              <div class="info-value" id="view-ticket-date">-</div>
+            </div>
+          </div>
+
+          <div class="info-group">
+            <h4>Client Information</h4>
+            <div class="info-item">
+              <div class="info-label">User ID</div>
+              <div class="info-value" id="view-client-userid">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Additional Info -->
+        <div class="conversation-messages">
+          <div class="messages-header">
+            <h4>Additional Information</h4>
+          </div>
+
+          <div class="messages-list" id="messages-list">
+            <div style="padding: 20px; text-align: center; color: #666;">
+              No additional information available
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="modal-btn" id="view-modal-close-btn">Close</button>
+    </footer>
+  </div>
+</div>
 
   <script src="/scripts/admin.js"></script>
 </body>

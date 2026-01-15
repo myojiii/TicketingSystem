@@ -1,83 +1,73 @@
- <div class="modal-overlay hidden" id="view-modal" role="dialog" aria-modal="true">
-    <div class="modal-card large" role="document">
-      <header class="modal-header">
-        <h3 class="modal-title">Ticket Conversation</h3>
-        <button class="modal-close" id="view-modal-close" aria-label="Close dialog">×</button>
-      </header>
+<!-- View Ticket Modal -->
+<div class="modal-overlay hidden" id="view-modal" role="dialog" aria-modal="true">
+  <div class="modal-card large" role="document">
+    <header class="modal-header">
+      <h3 class="modal-title">Ticket Details</h3>
+      <button class="modal-close" id="view-modal-close" aria-label="Close dialog">×</button>
+    </header>
 
-      <div class="modal-body">
-        <div class="conversation-container">
-          <!-- Left Side: Ticket Info -->
-          <div class="conversation-info">
-            <div class="info-group">
-              <h4>Ticket Details</h4>
-              <div class="info-item">
-                <div class="info-label">Ticket ID</div>
-                <div class="info-value" id="view-ticket-id">TKT-101</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Title</div>
-                <div class="info-value" id="view-ticket-title">VPN Connection Issues</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Status</div>
-                <div><span class="status-badge in-progress" id="view-ticket-status">In Progress</span></div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Priority</div>
-                <div><span class="priority-badge" id="view-ticket-priority">High</span></div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Category</div>
-                <div class="info-value" id="view-ticket-category">Network & VPN</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Created</div>
-                <div class="info-value" id="view-ticket-date">9/27/2025</div>
-              </div>
+    <div class="modal-body">
+      <div class="conversation-container">
+        <!-- Left Side: Ticket Info -->
+        <div class="conversation-info">
+          <div class="info-group">
+            <h4>Ticket Details</h4>
+            <div class="info-item">
+              <div class="info-label">Ticket ID</div>
+              <div class="info-value" id="view-ticket-id">-</div>
             </div>
-
-            <div class="info-group">
-              <h4>Client Information</h4>
-              <div class="info-item">
-                <div class="info-label">Name</div>
-                <div class="info-value" id="view-client-name">Sarah Johnson</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Email</div>
-                <div class="info-value" id="view-client-email">sarah.johnson@company.com</div>
-              </div>
+            <div class="info-item">
+              <div class="info-label">Title</div>
+              <div class="info-value" id="view-ticket-title">-</div>
             </div>
-
-            <div class="info-group">
-              <h4>Assigned Staff</h4>
-              <div class="info-item">
-                <div class="info-label">Agent</div>
-                <div class="info-value" id="view-staff-name">John Smith</div>
-              </div>
+            <div class="info-item">
+              <div class="info-label">Description</div>
+              <div class="info-value" id="view-ticket-description">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Status</div>
+              <div><span class="status-badge" id="view-ticket-status">-</span></div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Priority</div>
+              <div><span class="priority-badge" id="view-ticket-priority">-</span></div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Category</div>
+              <div class="info-value" id="view-ticket-category">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Created</div>
+              <div class="info-value" id="view-ticket-date">-</div>
             </div>
           </div>
 
-          <!-- Right Side: Conversation -->
-          <div class="conversation-messages">
-            <div class="messages-header">
-              <h4>Conversation History</h4>
-              <div class="realtime-indicator">
-                <span class="realtime-dot"></span>
-                <span>Real-time monitoring active</span>
-              </div>
+          <div class="info-group">
+            <h4>Client Information</h4>
+            <div class="info-item">
+              <div class="info-label">User ID</div>
+              <div class="info-value" id="view-client-userid">-</div>
             </div>
+          </div>
+        </div>
 
-            <div class="messages-list" id="messages-list">
-              <!-- Messages will be loaded here dynamically -->
+        <!-- Right Side: Additional Info -->
+        <div class="conversation-messages">
+          <div class="messages-header">
+            <h4>Additional Information</h4>
+          </div>
+
+          <div class="messages-list" id="messages-list">
+            <div style="padding: 20px; text-align: center; color: #666;">
+              No additional information available
             </div>
           </div>
         </div>
       </div>
-
-      <footer class="modal-footer">
-        <button class="modal-btn" id="view-modal-cancel">Close</button>
-      </footer>
     </div>
-  </div>
 
+    <footer class="modal-footer">
+      <button class="modal-btn" id="view-modal-close-btn">Close</button>
+    </footer>
+  </div>
+</div>

@@ -1,34 +1,30 @@
+<!-- Assign Category Modal -->
 <div class="modal-overlay hidden" id="assign-modal" role="dialog" aria-modal="true">
-    <div class="modal-card" role="document">
-      <header class="modal-header">
-        <h3 class="modal-title">Assign Category</h3>
-        <button class="modal-close" id="assign-modal-close" aria-label="Close dialog">×</button>
-      </header>
-      <div class="modal-sub">Select a category for this support ticket</div>
+  <div class="modal-card" role="document">
+    <header class="modal-header">
+      <h3 class="modal-title">Assign Category</h3>
+      <button class="modal-close" id="assign-modal-close" aria-label="Close dialog">×</button>
+    </header>
+    <div class="modal-sub">Select a category for this support ticket</div>
 
-      <div class="modal-body">
-        <div class="modal-row"><strong>Ticket ID:</strong> <span class="modal-ticket-id">TKT-105</span></div>
-        <div class="modal-row"><strong>Title:</strong> <span class="modal-ticket-title">Intranet Access Issue</span></div>
-        <div class="modal-row"><strong>Description:</strong>
-          <div class="modal-desc">Cannot access company intranet portal</div>
-        </div>
-        <div class="modal-row"><strong>Date Submitted:</strong> <span class="modal-date">1/12/2026</span></div>
-
-        <label class="modal-label" for="assign-category-select">Category</label>
-        <select id="assign-category-select" class="modal-select">
-          <option value="">Select a category</option>
-          <option value="network">Network & VPN</option>
-          <option value="software">Software Installation</option>
-          <option value="account">Account Management</option>
-          <option value="hardware">Hardware Issues</option>
-          <option value="email">Email & Communication</option>
-          <option value="other">Other</option>
-        </select>
+    <div class="modal-body">
+      <div class="modal-row"><strong>Ticket ID:</strong> <span class="modal-ticket-id">-</span></div>
+      <div class="modal-row"><strong>Title:</strong> <span class="modal-ticket-title">-</span></div>
+      <div class="modal-row"><strong>Description:</strong>
+        <div class="modal-desc">-</div>
       </div>
+      <div class="modal-row"><strong>Date Submitted:</strong> <span class="modal-date">-</span></div>
 
-      <footer class="modal-footer">
-        <button class="modal-btn" id="assign-modal-cancel">Cancel</button>
-        <button class="modal-btn primary" id="assign-modal-assign">Assign Category</button>
-      </footer>
+      <label class="modal-label" for="assign-category-select">Category</label>
+      <select id="assign-category-select" class="modal-select">
+        <option value="">Select a category</option>
+        <!-- Categories loaded from database -->
+      </select>
     </div>
+
+    <footer class="modal-footer">
+      <button class="modal-btn" id="assign-modal-cancel">Cancel</button>
+      <button class="modal-btn primary" id="assign-modal-assign">Assign Category</button>
+    </footer>
   </div>
+</div>
