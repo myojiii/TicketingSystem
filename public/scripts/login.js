@@ -52,6 +52,14 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
+        // ✅ ADD THESE LINES - Store userId and email in localStorage
+        if (data.userId) {
+          localStorage.setItem("userId", data.userId);
+        }
+        if (payload.email) {
+          localStorage.setItem("userEmail", payload.email);
+        }
+
         showMessage("Login successful. Redirecting...", "success");
         setTimeout(() => {
           window.location.href = data.redirect || "/";

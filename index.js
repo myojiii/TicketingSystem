@@ -161,18 +161,30 @@ app.get("/api/users/by-email", async (req, res) => {
   }
 });
 
+// Replace ONLY the app.get("/api/tickets", ...) section with this:
+
 app.get("/api/tickets", async (req, res) => {
   try {
-    const { unassigned } = req.query;
-    const filter = {};
+    const { unassigned, assigned } = req.query;
+    let filter = {};
 
+    // If unassigned parameter is provided, filter for tickets without category
     if (unassigned === "1") {
-      filter.$or = [
-        { "category name": { $exists: false } },
-        { "category name": "" },
-        { "category name": null },
-      ];
+      filter = {
+        $or: [
+          { "category name": { $exists: false } },
+          { "category name": "" },
+          { "category name": null },
+        ]
+      };
+    } 
+    // If assigned parameter is provided, filter for tickets with category
+    else if (assigned === "1") {
+      filter = {
+        "category name": { $exists: true, $ne: "", $ne: null }
+      };
     }
+    // If no parameters, return ALL tickets (filter remains empty object)
 
     const tickets = await TicketModel.find(filter).sort({ date: -1 }).lean();
     const normalized = tickets.map((t) => ({
@@ -192,7 +204,6 @@ app.get("/api/tickets", async (req, res) => {
     res.status(500).json({ message: "Failed to load tickets" });
   }
 });
-
 app.post("/api/tickets", async (req, res) => {
   try {
     const { title, description, userId: incomingUserId, email } = req.body;
@@ -233,6 +244,112 @@ app.post("/api/tickets", async (req, res) => {
   } catch (err) {
     console.error("Error creating ticket", err);
     res.status(500).json({ message: "Failed to create ticket" });
+  }
+});
+
+// ========================================
+// NEW ENDPOINTS FOR ADMIN FUNCTIONALITY
+// ========================================
+
+// UPDATE TICKET CATEGORY (for assign category modal)
+app.put("/api/tickets/:id/category", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category } = req.body;
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
+
+    const result = await TicketModel.findByIdAndUpdate(
+      id,
+      { "category name": category },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    res.json({ message: "Category updated successfully", ticket: result });
+  } catch (err) {
+    console.error("Error updating ticket category:", err);
+    res.status(500).json({ message: "Failed to update category" });
+  }
+});
+
+// UPDATE TICKET (for edit modal - updates category, status, priority)
+app.put("/api/tickets/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category, status, priority } = req.body;
+
+    const updates = {};
+    if (category !== undefined) updates["category name"] = category;
+    if (status !== undefined) updates.status = status;
+    if (priority !== undefined) updates.priority = priority;
+
+    const result = await TicketModel.findByIdAndUpdate(
+      id,
+      updates,
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    res.json({ message: "Ticket updated successfully", ticket: result });
+  } catch (err) {
+    console.error("Error updating ticket:", err);
+    res.status(500).json({ message: "Failed to update ticket" });
+  }
+});
+
+// DELETE TICKET
+app.delete("/api/tickets/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await TicketModel.findByIdAndDelete(id);
+
+    if (!result) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    res.json({ message: "Ticket deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting ticket:", err);
+    res.status(500).json({ message: "Failed to delete ticket" });
+  }
+});
+
+// GET SINGLE TICKET (for view modal)
+app.get("/api/tickets/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const ticket = await TicketModel.findById(id).lean();
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    const normalized = {
+      id: ticket._id?.toString() || "",
+      title: ticket["ticket title"] || "",
+      description: ticket["ticket description"] || "",
+      userId: ticket.userId || "",
+      status: ticket.status || "",
+      priority: ticket.priority || "",
+      category: ticket["category name"] || "",
+      date: ticket.date || null,
+    };
+
+    res.json(normalized);
+  } catch (err) {
+    console.error("Error fetching ticket:", err);
+    res.status(500).json({ message: "Failed to fetch ticket" });
   }
 });
 
