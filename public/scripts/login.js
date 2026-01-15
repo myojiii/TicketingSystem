@@ -59,6 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (payload.email) {
           localStorage.setItem("userEmail", payload.email);
         }
+        if (data.name) {
+          localStorage.setItem("userName", data.name);
+        }
 
         showMessage("Login successful. Redirecting...", "success");
         setTimeout(() => {

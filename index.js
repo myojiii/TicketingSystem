@@ -87,6 +87,8 @@ const messageSchema = new mongoose.Schema(
     ticketId: String,
     senderId: String,
     senderName: String,
+    receiverId: String,
+    staffId: String,
     message: String,
     timestamp: { type: Date, default: Date.now },
   },
@@ -620,16 +622,38 @@ app.get("/api/tickets/:ticketId/messages", async (req, res) => {
 app.post("/api/tickets/:ticketId/messages", async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const { senderId, message, senderName } = req.body;
+    const { senderId, message, senderName, staffId, receiverId } = req.body;
 
     if (!senderId || !message) {
       return res.status(400).json({ message: "senderId and message are required" });
+    }
+
+    // Get ticket to resolve staffId and determine receiver
+    const ticket = await TicketModel.findById(ticketId).lean();
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    const resolvedStaffId = staffId || ticket.assignedStaffId || "";
+    
+    // Determine receiverId: if sender is client, receiver is staff; if sender is staff, receiver is client
+    let resolvedReceiverId = receiverId;
+    if (!resolvedReceiverId) {
+      if (senderId === ticket.userId) {
+        // Sender is client, receiver is staff
+        resolvedReceiverId = resolvedStaffId;
+      } else {
+        // Sender is staff, receiver is client
+        resolvedReceiverId = ticket.userId;
+      }
     }
 
     const newMessage = await MessageModel.create({
       ticketId,
       senderId,
       senderName: senderName || "User",
+      receiverId: resolvedReceiverId,
+      staffId: resolvedStaffId,
       message,
       timestamp: new Date(),
     });

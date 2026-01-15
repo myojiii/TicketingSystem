@@ -265,4 +265,139 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   await fetchTicket();
+
+  // Message functionality for staff
+  const messagesContainer = document.querySelector(".messages");
+  const composerTextarea = document.querySelector(".composer textarea");
+  const sendButton = document.querySelector(".composer .send-btn");
+  let currentStaffId = localStorage.getItem("userId");
+
+  const formatMessageTime = (dateStr) => {
+    if (!dateStr) return "";
+    return new Date(dateStr).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
+
+  const formatMessageDate = (dateStr) => {
+    if (!dateStr) return "";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const renderMessages = async () => {
+    if (!messagesContainer || !ticketId) return;
+
+    try {
+      // Get ticket details first
+      const ticketRes = await fetch(`/api/tickets/${ticketId}`);
+      const ticket = ticketRes.ok ? await ticketRes.json() : null;
+
+      // Get messages
+      const res = await fetch(`/api/tickets/${ticketId}/messages`);
+      if (!res.ok) return;
+
+      const messages = await res.json();
+      const allMessages = [];
+
+      // Add ticket description as first message
+      if (ticket && ticket.description) {
+        allMessages.push({
+          isDescription: true,
+          message: ticket.description,
+          senderId: ticket.userId,
+          timestamp: ticket.date,
+        });
+      }
+
+      allMessages.push(...messages);
+
+      messagesContainer.innerHTML = allMessages
+        .map((msg) => {
+          const isStaff = msg.senderId === currentStaffId;
+          const senderName = isStaff ? "You" : msg.senderName || "Client";
+          const cssClass = isStaff ? "reply" : "";
+
+          return `
+            <div class="message ${cssClass}">
+              <div class="message-row">
+                <div class="sender">${senderName}</div>
+                <div class="timestamp">${formatMessageDate(msg.timestamp)} ${formatMessageTime(msg.timestamp)}</div>
+              </div>
+              <p class="message-body">${msg.message || msg.text || ""}</p>
+            </div>
+          `;
+        })
+        .join("");
+
+      // Scroll to bottom
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    } catch (err) {
+      console.error("Error loading messages:", err);
+    }
+  };
+
+  const sendStaffMessage = async () => {
+    if (!composerTextarea || !ticketId || !currentStaffId) return;
+    const text = composerTextarea.value.trim();
+    if (!text) return;
+
+    try {
+      // Get ticket to determine receiver (client)
+      const ticketRes = await fetch(`/api/tickets/${ticketId}`);
+      const ticket = ticketRes.ok ? await ticketRes.json() : null;
+      if (!ticket) {
+        alert("Could not load ticket details");
+        return;
+      }
+
+      const receiverId = ticket.userId; // Client is the receiver
+
+      const res = await fetch(`/api/tickets/${ticketId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: currentStaffId,
+          receiverId: receiverId,
+          staffId: currentStaffId,
+          senderName: localStorage.getItem("userName") || "Staff",
+          message: text,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (res.ok) {
+        composerTextarea.value = "";
+        await renderMessages();
+      } else {
+        const errorData = await res.json();
+        console.error("Send error:", errorData);
+        alert("Failed to send message: " + (errorData.message || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Error sending message:", err);
+      alert("Error sending message");
+    }
+  };
+
+  if (sendButton) {
+    sendButton.addEventListener("click", sendStaffMessage);
+  }
+
+  if (composerTextarea) {
+    composerTextarea.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendStaffMessage();
+      }
+    });
+  }
+
+  // Load messages on page load and poll every 5 seconds
+  await renderMessages();
+  setInterval(renderMessages, 5000);
 });
