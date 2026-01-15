@@ -1,28 +1,3 @@
-// Load modal HTML files
-async function loadModals() {
-  const modalContainer = document.body;
-  
-  const modals = [
-    '/modals/assignCategoryModal.html',
-    '/modals/editCategoryModal.html',
-    '/modals/deleteTicketModal.html',
-    '/modals/viewConversationModal.html'
-  ];
-  
-  for (const modalPath of modals) {
-    const res = await fetch(modalPath);
-    const html = await res.text();
-    modalContainer.insertAdjacentHTML('beforeend', html);
-  }
-}
-
-// Load modals before initializing
-loadModals().then(() => {
-  document.addEventListener('DOMContentLoaded', async () => {
-    // ... your existing code ...
-  });
-});
-
 document.addEventListener('DOMContentLoaded', async () => {
   // ========================================
   // GLOBAL STATE
