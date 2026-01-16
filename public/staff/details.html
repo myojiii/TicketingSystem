@@ -29,15 +29,16 @@
         </button>
       </div>
 
-      <div class="help-card">
-        <div class="help-title">Need Help?</div>
-        <div class="help-text">Chat with our team</div>
-        <div class="help-status">
-          <span class="dot"></span>
-          <span>Click the chat button</span>
-        </div>
-      </div>
-    </aside>
+  <button class="logout-btn" id="logout-btn" type="button">
+    <span class="logout-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </span>
+    <span class="logout-text">Logout</span>
+  </button>    </aside>
 
     <section class="content details">
       <header class="topbar">
@@ -196,21 +197,22 @@
               <p class="message-body">I'm using Cisco AnyConnect on Windows 11 Pro.</p>
             </div>
           </div>
-
           <div class="composer">
-            <textarea placeholder="Type your reply..." rows="3"></textarea>
-            <div class="composer-actions">
-              <button type="button" class="attach-btn">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M16.5 7.5v7a4.5 4.5 0 1 1-9 0V6.25a3.25 3.25 0 0 1 6.5 0v8.25a2 2 0 1 1-4 0V7.5h1.5v7a.5.5 0 1 0 1 0V6.25a4.75 4.75 0 0 0-9.5 0v8.25a6 6 0 1 0 12 0v-7h1.5Z"></path>
-                </svg>
-                Attach
-              </button>
-              <button type="button" class="send-btn">
-                Send
-              </button>
-            </div>
-          </div>
+  <textarea id="message-input" placeholder="Type your reply..." rows="3"></textarea>
+  <div class="composer-actions">
+    <input type="file" id="file-input" style="display: none;" multiple accept="image/*,.pdf,.doc,.docx,.txt">
+    <button type="button" class="attach-btn" id="attach-btn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M16.5 7.5v7a4.5 4.5 0 1 1-9 0V6.25a3.25 3.25 0 0 1 6.5 0v8.25a2 2 0 1 1-4 0V7.5h1.5v7a.5.5 0 1 0 1 0V6.25a4.75 4.75 0 0 0-9.5 0v8.25a6 6 0 1 0 12 0v-7h1.5Z"></path>
+      </svg>
+      Attach
+    </button>
+    <button type="button" class="send-btn" id="send-btn">
+      Send
+    </button>
+  </div>
+  <div class="attachments-preview" id="attachments-preview"></div>
+</div>
         </section>
       </div>
     </section>

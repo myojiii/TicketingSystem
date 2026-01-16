@@ -1,4 +1,254 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  // ========================================
+  // SIDEBAR TOGGLE FUNCTIONALITY
+  // ========================================
+  const sidebar = document.querySelector('.sidebar');
+  const layout = document.querySelector('.layout');
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  
+  // Load saved state from localStorage
+  const savedState = localStorage.getItem('sidebarCollapsed');
+  if (savedState === 'true') {
+    sidebar?.classList.add('collapsed');
+    layout?.classList.add('sidebar-collapsed');
+  }
+  
+  // Toggle sidebar on button click
+  toggleBtn?.addEventListener('click', () => {
+    sidebar?.classList.toggle('collapsed');
+    layout?.classList.toggle('sidebar-collapsed');
+    
+    // Save state to localStorage
+    const isCollapsed = sidebar?.classList.contains('collapsed');
+    localStorage.setItem('sidebarCollapsed', isCollapsed);
+  });
+
+  // ========================================
+  // LOGOUT FUNCTIONALITY
+  // ========================================
+  const logoutBtn = document.getElementById('logout-btn');
+
+  logoutBtn?.addEventListener('click', () => {
+    const confirmLogout = confirm('Are you sure you want to logout?');
+    
+    if (confirmLogout) {
+      // Clear session data
+      localStorage.removeItem('sidebarCollapsed');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userRole');
+      
+      // Redirect to login
+      window.location.href = '/';
+    }
+  });
+
+
+
+  // ========================================
+  // ATTACHMENT FUNCTIONALITY
+  // ========================================
+  const attachBtn = document.getElementById('attach-btn');
+  const fileInput = document.getElementById('file-input');
+  const attachmentsPreview = document.getElementById('attachments-preview');
+  const messageInput = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  let selectedFiles = [];
+
+  // Format file size
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  // Get file icon based on file type
+  const getFileIcon = (fileName) => {
+    const ext = fileName.split('.').pop().toLowerCase();
+    
+    if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext)) {
+      return `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    }
+    
+    if (['pdf'].includes(ext)) {
+      return `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`;
+    }
+    
+    if (['doc', 'docx'].includes(ext)) {
+      return `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
+    }
+    
+    return `<svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>`;
+  };
+
+  // Render attachments preview
+  const renderAttachments = () => {
+    if (!attachmentsPreview) return;
+    
+    attachmentsPreview.innerHTML = '';
+    
+    selectedFiles.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'attachment-item';
+      item.innerHTML = `
+        <div class="attachment-icon">${getFileIcon(file.name)}</div>
+        <span class="attachment-name" title="${file.name}">${file.name}</span>
+        <span class="attachment-size">${formatFileSize(file.size)}</span>
+        <button type="button" class="attachment-remove" data-index="${index}">
+          <svg viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      `;
+      attachmentsPreview.appendChild(item);
+    });
+
+    // Add remove listeners
+    attachmentsPreview.querySelectorAll('.attachment-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        selectedFiles.splice(index, 1);
+        renderAttachments();
+      });
+    });
+  };
+
+  // Handle file selection
+  attachBtn?.addEventListener('click', () => {
+    fileInput?.click();
+  });
+
+  fileInput?.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files || []);
+    
+    // Validate file size (max 10MB per file)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const validFiles = files.filter(file => {
+      if (file.size > maxSize) {
+        alert(`File "${file.name}" is too large. Maximum size is 10MB.`);
+        return false;
+      }
+      return true;
+    });
+
+    // Add to selected files
+    selectedFiles = [...selectedFiles, ...validFiles];
+    
+    // Limit to 5 files
+    if (selectedFiles.length > 5) {
+      alert('You can only attach up to 5 files at once.');
+      selectedFiles = selectedFiles.slice(0, 5);
+    }
+
+    renderAttachments();
+    
+    // Reset file input
+    if (fileInput) fileInput.value = '';
+  });
+
+  // Handle send message
+  sendBtn?.addEventListener('click', async () => {
+    const message = messageInput?.value.trim();
+    
+    if (!message && selectedFiles.length === 0) {
+      alert('Please enter a message or attach a file.');
+      return;
+    }
+
+    // Here you would typically:
+    // 1. Upload files to server
+    // 2. Send message with file references
+    // 3. Update conversation
+    
+    console.log('Sending message:', message);
+    console.log('Attachments:', selectedFiles);
+
+    // For demonstration, let's create a FormData object
+    const formData = new FormData();
+    formData.append('message', message);
+    formData.append('ticketId', 'TKT-101'); // Get from URL params
+    formData.append('senderId', localStorage.getItem('userId') || 'staff-1');
+    
+    selectedFiles.forEach((file, index) => {
+      formData.append(`attachment_${index}`, file);
+    });
+
+    try {
+      // Example API call (you'll need to create this endpoint)
+      // const response = await fetch('/api/tickets/TKT-101/messages', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+
+      // For now, just add the message to the conversation
+      addMessageToConversation(message, selectedFiles);
+      
+      // Clear inputs
+      if (messageInput) messageInput.value = '';
+      selectedFiles = [];
+      renderAttachments();
+      
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
+    }
+  });
+
+  // Add message to conversation (client-side demo)
+  const addMessageToConversation = (text, files) => {
+    const messagesContainer = document.querySelector('.messages');
+    if (!messagesContainer) return;
+
+    const now = new Date();
+    const timestamp = now.toLocaleString('en-US', {
+      month: 'numeric',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message reply';
+    
+    let attachmentsHTML = '';
+    if (files.length > 0) {
+      attachmentsHTML = '<div class="message-attachments">';
+      files.forEach(file => {
+        attachmentsHTML += `
+          <a href="#" class="message-attachment" onclick="return false;">
+            <div class="attachment-icon">${getFileIcon(file.name)}</div>
+            <span>${file.name}</span>
+          </a>
+        `;
+      });
+      attachmentsHTML += '</div>';
+    }
+
+    messageDiv.innerHTML = `
+      <div class="message-row">
+        <div class="sender">You</div>
+        <div class="timestamp">${timestamp}</div>
+      </div>
+      <p class="message-body">${text || '(Attachments only)'}</p>
+      ${attachmentsHTML}
+    `;
+
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  };
+
+  // Handle Enter key to send (Shift+Enter for new line)
+  messageInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn?.click();
+    }
+  });
   const toggle = document.getElementById("toggle-convo");
   const convo = document.getElementById("conversation-card");
 
