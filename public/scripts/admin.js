@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const editOverlay = document.getElementById('edit-modal');
   const deleteOverlay = document.getElementById('delete-modal');
   const viewOverlay = document.getElementById('view-modal');
+  const messagesList = document.getElementById('messages-list');
+  let lastMessagesSnapshot = null;
 
   // ========================================
   // MODAL HELPERS
@@ -27,7 +29,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeDeleteModal = () => deleteOverlay?.classList.add('hidden');
 
   const openViewModal = () => viewOverlay?.classList.remove('hidden');
-  const closeViewModal = () => viewOverlay?.classList.add('hidden');
+  const closeViewModal = () => {
+    viewOverlay?.classList.add('hidden');
+    stopMessagesPolling();
+    viewTicketId = null;
+    viewTicketUserId = null;
+    lastMessagesSnapshot = null;
+  };
+
+  let viewMessagesTimer = null;
+  let viewTicketId = null;
+  let viewTicketUserId = null;
 
   // ========================================
   // HELPERS
@@ -44,11 +56,82 @@ document.addEventListener('DOMContentLoaded', async () => {
   const truncateText = (text, maxLength = 150) => {
     if (!text) return 'No description';
     if (text.length <= maxLength) return text;
-    return text.substring(0, 50) + '...';
+    return text.substring(0, 20) + '...';
   };
+
+  const escapeHtml = (str = '') =>
+    str.replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[c] || c));
 
   const getStatusClass = (status) =>
     status ? status.toLowerCase().replace(/\s+/g, '-') : '';
+
+  const normalize = (val = '') => val.toString().trim().toLowerCase();
+
+  function renderMessages(messages) {
+    lastMessagesSnapshot = JSON.stringify(messages || []);
+
+    if (!messagesList) return;
+    if (!Array.isArray(messages) || messages.length === 0) {
+      messagesList.innerHTML = `
+        <div style="padding: 20px; text-align: center; color: #666;">
+          No conversation yet
+        </div>
+      `;
+      return;
+    }
+
+    messagesList.innerHTML = messages.map(msg => {
+      const isClient = viewTicketUserId && msg.senderId === viewTicketUserId;
+      const senderClass = isClient ? 'client' : 'staff';
+      const senderName = escapeHtml(msg.senderName || (isClient ? 'Client' : 'Staff'));
+      const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
+      const safeMessage = escapeHtml(msg.message || '');
+
+      return `
+        <div class="message ${senderClass}">
+          <div class="message-header">
+            <div class="message-sender ${senderClass}">${senderName}</div>
+            <div class="message-time">${time}</div>
+          </div>
+          <div class="message-content">${safeMessage}</div>
+        </div>
+      `;
+    }).join('');
+    messagesList.scrollTop = messagesList.scrollHeight;
+  }
+
+  async function fetchMessages() {
+    if (!viewTicketId) return;
+    try {
+      const res = await fetch(`/api/tickets/${viewTicketId}/messages`);
+      if (!res.ok) throw new Error('Failed to load messages');
+      const data = await res.json();
+      const snapshot = JSON.stringify(data || []);
+      if (snapshot === lastMessagesSnapshot) return;
+      renderMessages(data);
+    } catch (err) {
+      console.error('Error loading messages:', err);
+    }
+  }
+
+  function stopMessagesPolling() {
+    if (viewMessagesTimer) {
+      clearInterval(viewMessagesTimer);
+      viewMessagesTimer = null;
+    }
+  }
+
+  function startMessagesPolling() {
+    stopMessagesPolling();
+    fetchMessages();
+    viewMessagesTimer = setInterval(fetchMessages, 4000);
+  }
 
   // ========================================
   // ASSIGN BUTTONS
@@ -109,6 +192,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           
           const ticket = await res.json();
 
+          viewTicketId = ticket.id || null;
+          viewTicketUserId = ticket.userId || null;
+          renderMessages([]);
+
           document.getElementById('view-ticket-id').textContent = ticket.id || '-';
           document.getElementById('view-ticket-title').textContent = ticket.title || '-';
           document.getElementById('view-ticket-description').textContent = ticket.description || '-';
@@ -124,6 +211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           priorityEl.textContent = ticket.priority || 'Not Set';
 
           openViewModal();
+          startMessagesPolling();
         } catch (err) {
           console.error('Error fetching ticket:', err);
           alert('Failed to load ticket details');
