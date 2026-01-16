@@ -149,99 +149,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (fileInput) fileInput.value = '';
   });
 
-  // Handle send message
-  sendBtn?.addEventListener('click', async () => {
-    const message = messageInput?.value.trim();
-    
-    if (!message && selectedFiles.length === 0) {
-      alert('Please enter a message or attach a file.');
-      return;
-    }
-
-    // Here you would typically:
-    // 1. Upload files to server
-    // 2. Send message with file references
-    // 3. Update conversation
-    
-    console.log('Sending message:', message);
-    console.log('Attachments:', selectedFiles);
-
-    // For demonstration, let's create a FormData object
-    const formData = new FormData();
-    formData.append('message', message);
-    formData.append('ticketId', 'TKT-101'); // Get from URL params
-    formData.append('senderId', localStorage.getItem('userId') || 'staff-1');
-    
-    selectedFiles.forEach((file, index) => {
-      formData.append(`attachment_${index}`, file);
-    });
-
-    try {
-      // Example API call (you'll need to create this endpoint)
-      // const response = await fetch('/api/tickets/TKT-101/messages', {
-      //   method: 'POST',
-      //   body: formData
-      // });
-
-      // For now, just add the message to the conversation
-      addMessageToConversation(message, selectedFiles);
-      
-      // Clear inputs
-      if (messageInput) messageInput.value = '';
-      selectedFiles = [];
-      renderAttachments();
-      
-    } catch (error) {
-      console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
-    }
-  });
-
-  // Add message to conversation (client-side demo)
-  const addMessageToConversation = (text, files) => {
-    const messagesContainer = document.querySelector('.messages');
-    if (!messagesContainer) return;
-
-    const now = new Date();
-    const timestamp = now.toLocaleString('en-US', {
-      month: 'numeric',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message reply';
-    
-    let attachmentsHTML = '';
-    if (files.length > 0) {
-      attachmentsHTML = '<div class="message-attachments">';
-      files.forEach(file => {
-        attachmentsHTML += `
-          <a href="#" class="message-attachment" onclick="return false;">
-            <div class="attachment-icon">${getFileIcon(file.name)}</div>
-            <span>${file.name}</span>
-          </a>
-        `;
-      });
-      attachmentsHTML += '</div>';
-    }
-
-    messageDiv.innerHTML = `
-      <div class="message-row">
-        <div class="sender">You</div>
-        <div class="timestamp">${timestamp}</div>
-      </div>
-      <p class="message-body">${text || '(Attachments only)'}</p>
-      ${attachmentsHTML}
-    `;
-
-    messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  };
-
   // Handle Enter key to send (Shift+Enter for new line)
   messageInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -622,6 +529,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (res.ok) {
         composerTextarea.value = "";
+        selectedFiles = [];
+        renderAttachments();
         await renderMessages();
       } else {
         const errorData = await res.json();

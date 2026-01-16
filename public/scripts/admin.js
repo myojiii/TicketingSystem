@@ -180,9 +180,20 @@ logoutBtn?.addEventListener('click', () => {
       const res = await fetch(`/api/tickets/${viewTicketId}/messages`);
       if (!res.ok) throw new Error('Failed to load messages');
       const data = await res.json();
-      const snapshot = JSON.stringify(data || []);
+
+      // Prepend ticket description as first message once
+      const ticket = await fetchTicketForDescription();
+      const descriptionMessage = ticket?.description ? [{
+        senderId: ticket.userId,
+        senderName: 'Client',
+        message: ticket.description,
+        timestamp: ticket.date,
+      }] : [];
+
+      const combined = [...descriptionMessage, ...(data || [])];
+      const snapshot = JSON.stringify(combined || []);
       if (snapshot === lastMessagesSnapshot) return;
-      renderMessages(data);
+      renderMessages(combined);
     } catch (err) {
       console.error('Error loading messages:', err);
     }
@@ -200,6 +211,18 @@ logoutBtn?.addEventListener('click', () => {
     fetchMessages();
     viewMessagesTimer = setInterval(fetchMessages, 4000);
   }
+
+  const fetchTicketForDescription = async () => {
+    if (!viewTicketId) return null;
+    try {
+      const res = await fetch(`/api/tickets/${viewTicketId}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      console.error('Error fetching ticket for description:', err);
+      return null;
+    }
+  };
 
   // ========================================
   // ASSIGN BUTTONS
