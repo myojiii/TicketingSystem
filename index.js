@@ -75,6 +75,7 @@ const ticketSchema = new mongoose.Schema(
     assignedStaffId: String,
     assignedStaffName: String,
     assignedDepartment: String,
+    assignedAt: Date,
   },
   { collection: "tickets" }
 );
@@ -191,7 +192,7 @@ const assignTicketToDepartmentStaff = async (ticketDoc, categoryName) => {
   ticketDoc.assignedStaffName = staff.name || "";
   ticketDoc.assignedDepartment = staff.department || categoryValue;
     ticketDoc.status = "Open";
-
+    ticketDoc.assignedAt = new Date();
   ticketDoc["category name"] = categoryValue;
   await ticketDoc.save();
   return { assigned: true, staff };
@@ -371,8 +372,9 @@ app.get("/api/tickets", async (req, res) => {
         "category name": { $exists: true, $ne: "", $ne: null }
       };
     }
-
-    const tickets = await TicketModel.find(filter).sort({ date: -1 }).lean();
+     const tickets = await TicketModel.find(filter)
+      .sort({ assignedAt: -1, date: -1 })  // Changed from just { date: -1 }
+      .lean();
     
     // Check for agent replies for each ticket
     const normalized = await Promise.all(tickets.map(async (t) => {
