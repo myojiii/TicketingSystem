@@ -52,12 +52,12 @@
 
 	const initUser = async () => {
 		state.currentUserId = await getUserId();
-		const email = localStorage.getItem("userEmail");
+		const name = localStorage.getItem("userName");
 		const userInfoEl = document.getElementById("user-info");
 		if (!userInfoEl) return;
 
-		if (state.currentUserId && email) {
-			userInfoEl.textContent = `Logged in as: ${email}`;
+		if (state.currentUserId && name) {
+			userInfoEl.textContent = `Logged in as: ${name}`;
 		} else {
 			userInfoEl.textContent = "Not logged in";
 		}
