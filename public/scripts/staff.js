@@ -1,7 +1,48 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  // ========================================
+  // SIDEBAR TOGGLE FUNCTIONALITY
+  // ========================================
+  const sidebar = document.querySelector('.sidebar');
+  const layout = document.querySelector('.layout');
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  
+  // Load saved state from localStorage
+  const savedState = localStorage.getItem('sidebarCollapsed');
+  if (savedState === 'true') {
+    sidebar.classList.add('collapsed');
+    layout.classList.add('sidebar-collapsed');
+  }
+  
+  // Toggle sidebar on button click
+  toggleBtn?.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    layout.classList.toggle('sidebar-collapsed');
+    
+    // Save state to localStorage
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    localStorage.setItem('sidebarCollapsed', isCollapsed);
+  });
+
+  // ========================================
+  // LOGOUT FUNCTIONALITY
+  // ========================================
+  const logoutBtn = document.getElementById('logout-btn');
+
+  logoutBtn?.addEventListener('click', () => {
+    const confirmLogout = confirm('Are you sure you want to logout?');
+    
+    if (confirmLogout) {
+      // Clear session data
+      localStorage.removeItem('sidebarCollapsed');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userRole');
+      
+      // Redirect to login
+      window.location.href = '/';
+    }
+  });
   const menu = document.querySelector("#category-menu");
-  const toggle = document.querySelector("#category-toggle");
-  const label = document.querySelector("#category-label");
+  const toggle = document.querySelector("#category-toggle");  const label = document.querySelector("#category-label");
   const statusMenu = document.querySelector("#status-menu");
   const statusToggle = document.querySelector("#status-toggle");
   const statusLabel = document.querySelector("#status-label");

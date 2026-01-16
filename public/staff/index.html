@@ -8,35 +8,50 @@
 </head>
 <body>
   <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-top">
-        <div class="brand">
-          <img src="/assets/logo.png" alt="TickIT logo" class="logo">
-          <div class="brand-text">
-            <div class="brand-name">TickIT</div>
-            <div class="brand-sub">Ticketing System</div>
-          </div>
-        </div>
+   <aside class="sidebar">
+  <!-- Toggle Button -->
+  <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+    <svg viewBox="0 0 24 24" class="toggle-icon">
+      <path d="M15 18l-6-6 6-6"></path>
+    </svg>
+  </button>
 
-        <button class="nav-btn" type="button">
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm.5 2a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5h-13ZM8 7h8v2H8V7Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z"></path>
-            </svg>
-          </span>
-          <span>Manage Ticket</span>
-        </button>
+  <div class="sidebar-top">
+    <div class="brand">
+      <img src="/assets/logo.png" alt="TickIT logo" class="logo">
+      <div class="brand-text">
+        <div class="brand-name">TickIT</div>
+        <div class="brand-sub">Ticketing System</div>
       </div>
+    </div>
 
-      <div class="help-card">
-        <div class="help-title">Need Help?</div>
-        <div class="help-text">Chat with our team</div>
-        <div class="help-status">
-          <span class="dot"></span>
-          <span>Click the chat button</span>
-        </div>
-      </div>
-    </aside>
+    <nav class="nav-menu">
+      <button class="nav-btn active" type="button" data-tooltip="Manage Tickets">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+            <path d="M14 2v6h6"/>
+            <path d="M16 13H8"/>
+            <path d="M16 17H8"/>
+            <path d="M10 9H8"/>
+          </svg>
+        </span>
+        <span class="nav-text">Manage Tickets</span>
+      </button>
+    </nav>
+  </div>
+
+  <button class="logout-btn" id="logout-btn" type="button">
+    <span class="logout-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </span>
+    <span class="logout-text">Logout</span>
+  </button>
+</aside>
 
     <section class="content">
       <header class="topbar">
