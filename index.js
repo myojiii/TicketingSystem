@@ -45,48 +45,6 @@ const userSchema = new mongoose.Schema(
 
 const UserModel = mongoose.model("users", userSchema);
 
-// Simple in-memory seed accounts (plaintext for demo only)
-const seededUsers = [
-  {
-    name: "Admin",
-    email: "admin@gmail.com",
-    password: "Admin123",
-    role: "Admin",
-    userId: "seed-admin",
-  },
-  {
-    name: "Network Lead",
-    email: "staff@gmail.com",
-    password: "Staff123",
-    role: "Staff",
-    department: "Network",
-    userId: "seed-staff",
-  },
-  {
-    name: "Network Support",
-    email: "network.staff2@gmail.com",
-    password: "Staff123",
-    role: "Staff",
-    department: "Network",
-    userId: "seed-staff-network-2",
-  },
-  {
-    name: "Software Support",
-    email: "software.staff@gmail.com",
-    password: "Staff123",
-    role: "Staff",
-    department: "Software",
-    userId: "seed-staff-software-1",
-  },
-  {
-    name: "Client1",
-    email: "client1@gmail.com",
-    password: "Client123",
-    role: "Client",
-    userId: "seed-client1",
-  },
-];
-
 const categorySchema = new mongoose.Schema(
   {
     "category code": String,
