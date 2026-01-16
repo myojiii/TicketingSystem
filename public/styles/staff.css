@@ -37,21 +37,82 @@ body {
   display: none !important;
 }
 
+/* ========================================
+   LAYOUT & SIDEBAR
+   ======================================== */
+
 .layout {
   display: grid;
   grid-template-columns: 280px 1fr;
   height: 100vh;
   overflow: hidden;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.layout.sidebar-collapsed {
+  grid-template-columns: 80px 1fr;
 }
 
 .sidebar {
+  position: relative;
   background: #f9fbff;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 28px 24px;
-  overflow: hidden;
+  overflow: visible;
+  width: 280px;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+  padding: 28px 16px;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+  position: absolute;
+  top: 28px;
+  right: -15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.sidebar-toggle:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.sidebar-toggle:hover .toggle-icon {
+  stroke: #fff;
+}
+
+.toggle-icon {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text);
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .toggle-icon {
+  transform: rotate(180deg);
 }
 
 .sidebar-top {
@@ -60,22 +121,38 @@ body {
   gap: 32px;
 }
 
+/* Brand Section */
 .brand {
   display: flex;
   align-items: center;
   gap: 14px;
+  transition: justify-content 0.3s ease;
+}
+
+.sidebar.collapsed .brand {
+  justify-content: center;
+  gap: 0;
 }
 
 .logo {
   width: 46px;
   height: 46px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .brand-text {
+  opacity: 0;
+  width: 0;
 }
 
 .brand-name {
@@ -90,76 +167,244 @@ body {
   font-weight: 600;
 }
 
-.nav-btn {
-  height: 52px;
-  border-radius: 12px;
-  border: none;
-  background: var(--primary);
-  color: #fff;
-  font-size: 15px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  box-shadow: 0 14px 28px rgba(74, 59, 255, 0.25);
-  cursor: pointer;
-  transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.nav-btn:hover {
-  background: var(--primary-hover);
-  box-shadow: 0 16px 30px rgba(74, 59, 255, 0.3);
-}
-
-.nav-btn:active {
-  transform: scale(0.99);
-}
-
-.nav-icon svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-}
-
-.help-card {
-  margin-top: auto;
-  background: linear-gradient(145deg, #f0f4ff, #ffffff);
-  border-radius: 16px;
-  padding: 18px 16px;
-  box-shadow: 0 10px 24px rgba(74, 59, 255, 0.08);
+/* Navigation Menu */
+.nav-menu {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Navigation Button */
+.nav-btn {
+  height: 48px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
   color: var(--text);
-}
-
-.help-title {
-  font-weight: 800;
-  color: var(--text-strong);
-  font-size: 16px;
-}
-
-.help-text {
-  color: var(--muted);
-  font-weight: 600;
   font-size: 14px;
-}
-
-.help-status {
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  text-align: left;
+  width: 100%;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #2ecc71;
-  display: inline-block;
-  font-size: 16px;
+.nav-btn:hover {
+  background: rgba(74, 59, 255, 0.08);
+  color: var(--primary);
 }
+
+.nav-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(74, 59, 255, 0.25);
+}
+
+.nav-btn.active:hover {
+  background: var(--primary-hover);
+}
+
+.sidebar.collapsed .nav-btn {
+  gap: 0;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transition: all 0.2s ease;
+}
+
+.nav-btn.active .nav-icon svg {
+  stroke: #fff;
+}
+
+.nav-text {
+  white-space: nowrap;
+  transition: opacity 0.2s ease, width 0.3s ease;
+  overflow: hidden;
+  flex: 1;
+}
+
+.sidebar.collapsed .nav-text {
+  opacity: 0;
+  width: 0;
+  display: none;
+}
+
+/* Tooltip for collapsed state */
+.sidebar.collapsed .nav-btn::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 15px);
+  background: var(--text-strong);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.sidebar.collapsed .nav-btn:hover::before {
+  opacity: 1;
+}
+
+/* Arrow for tooltip */
+.sidebar.collapsed .nav-btn::after {
+  content: "";
+  position: absolute;
+  left: calc(100% + 7px);
+  border: 4px solid transparent;
+  border-right-color: var(--text-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.sidebar.collapsed .nav-btn:hover::after {
+  opacity: 1;
+}
+
+/* Logout Button */
+.logout-btn {
+  margin-top: auto;
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  width: 100%;
+}
+
+.logout-btn:hover {
+  background: #fff5f5;
+  border-color: #ffcdd2;
+  color: #d32f2f;
+}
+
+.logout-btn:active {
+  transform: scale(0.98);
+}
+
+.sidebar.collapsed .logout-btn {
+  gap: 0;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.logout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.logout-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.logout-text {
+  white-space: nowrap;
+  transition: opacity 0.2s ease, width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .logout-text {
+  opacity: 0;
+  width: 0;
+  display: none;
+}
+
+/* Tooltip for logout button when collapsed */
+.sidebar.collapsed .logout-btn::before {
+  content: "Logout";
+  position: absolute;
+  left: calc(100% + 15px);
+  background: var(--text-strong);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.sidebar.collapsed .logout-btn:hover::before {
+  opacity: 1;
+}
+
+.sidebar.collapsed .logout-btn::after {
+  content: "";
+  position: absolute;
+  left: calc(100% + 7px);
+  border: 4px solid transparent;
+  border-right-color: var(--text-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.sidebar.collapsed .logout-btn:hover::after {
+  opacity: 1;
+}
+
+/* ========================================
+   CONTENT AREA
+   ======================================== */
 
 .content {
   display: flex;
@@ -228,6 +473,10 @@ body {
   overflow-y: auto;
   padding: 24px;
 }
+
+/* ========================================
+   TICKETS SECTION
+   ======================================== */
 
 .tickets {
   background: #f9fafc;
@@ -339,12 +588,6 @@ body {
   font-weight: 700;
 }
 
-.dropdown-empty {
-  padding: 10px 12px;
-  color: var(--muted);
-  font-weight: 700;
-}
-
 .ticket-card {
   background: #fff;
   border: 1px solid var(--border);
@@ -445,9 +688,17 @@ body {
   text-decoration: none;
 }
 
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
 @media (max-width: 960px) {
   .layout {
     grid-template-columns: 240px 1fr;
+  }
+
+  .layout.sidebar-collapsed {
+    grid-template-columns: 80px 1fr;
   }
 
   .ticket-card {
@@ -466,14 +717,27 @@ body {
     height: auto;
   }
 
+  .layout.sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+
   .sidebar {
     flex-direction: row;
     align-items: center;
     gap: 16px;
     height: auto;
+    width: 100%;
   }
 
-  .help-card {
+  .sidebar.collapsed {
+    width: 100%;
+  }
+
+  .sidebar-toggle {
+    display: none;
+  }
+
+  .logout-btn {
     display: none;
   }
 
