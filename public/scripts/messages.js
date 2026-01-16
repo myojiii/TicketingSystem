@@ -96,6 +96,48 @@
     }
   };
 
+  const markTicketAsOpened = (ticketId) => {
+    try {
+      console.log(`Marking ticket #${ticketId} as viewed...`);
+
+      // Notify backend that client has viewed the agent's message
+      // This will set hasAgentView = true on the backend
+      fetch(`/api/tickets/${ticketId}/mark-viewed`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const errorText = await res.text();
+            console.error(
+              `Failed to mark ticket as viewed. Status: ${res.status}, Error:`,
+              errorText
+            );
+            return;
+          }
+          console.log(`✓ Ticket #${ticketId} marked as viewed on server`);
+
+          // Refresh ticket list to update badge immediately
+          if (
+            window.ClientApp &&
+            typeof window.ClientApp.loadMyTickets === "function"
+          ) {
+            setTimeout(() => {
+              window.ClientApp.loadMyTickets();
+            }, 500);
+          }
+        })
+        .catch((err) => {
+          console.error("Error marking ticket as viewed on server:", err);
+          alert(
+            "Note: Unable to mark ticket as viewed on server. The badge may reappear."
+          );
+        });
+    } catch (err) {
+      console.error("Error marking ticket as opened:", err);
+    }
+  };
+
   const openChat = async (ticketId) => {
     if (!chatModal) return;
     state.currentTicketId = ticketId;
@@ -111,6 +153,9 @@
       if (chatId) chatId.textContent = `Ticket #${ticket.id}`;
 
       chatModal.classList.add("active");
+
+      // Mark ticket as opened with current timestamp
+      markTicketAsOpened(ticketId);
 
       await loadMessages(ticketId);
 
@@ -131,6 +176,14 @@
     }
     state.currentTicketId = null;
     state.currentStaffId = null;
+
+    // Refresh ticket list to update badges after viewing
+    if (
+      window.ClientApp &&
+      typeof window.ClientApp.loadMyTickets === "function"
+    ) {
+      window.ClientApp.loadMyTickets();
+    }
   };
 
   const sendMessage = async () => {

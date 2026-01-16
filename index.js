@@ -7,7 +7,8 @@ const app = express();
 dotenv.config();
 
 const PORT = process.env.PORT || 7000;
-const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/Ticketing";
+const MONGO_URL =
+  process.env.MONGO_URL || "mongodb://localhost:27017/Ticketing";
 const rootDir = process.cwd();
 
 app.use(express.json());
@@ -46,11 +47,44 @@ const UserModel = mongoose.model("users", userSchema);
 
 // Simple in-memory seed accounts (plaintext for demo only)
 const seededUsers = [
-  { name: "Admin", email: "admin@gmail.com", password: "Admin123", role: "Admin", userId: "seed-admin" },
-  { name: "Network Lead", email: "staff@gmail.com", password: "Staff123", role: "Staff", department: "Network", userId: "seed-staff" },
-  { name: "Network Support", email: "network.staff2@gmail.com", password: "Staff123", role: "Staff", department: "Network", userId: "seed-staff-network-2" },
-  { name: "Software Support", email: "software.staff@gmail.com", password: "Staff123", role: "Staff", department: "Software", userId: "seed-staff-software-1" },
-  { name: "Client1", email: "client1@gmail.com", password: "Client123", role: "Client", userId: "seed-client1" },
+  {
+    name: "Admin",
+    email: "admin@gmail.com",
+    password: "Admin123",
+    role: "Admin",
+    userId: "seed-admin",
+  },
+  {
+    name: "Network Lead",
+    email: "staff@gmail.com",
+    password: "Staff123",
+    role: "Staff",
+    department: "Network",
+    userId: "seed-staff",
+  },
+  {
+    name: "Network Support",
+    email: "network.staff2@gmail.com",
+    password: "Staff123",
+    role: "Staff",
+    department: "Network",
+    userId: "seed-staff-network-2",
+  },
+  {
+    name: "Software Support",
+    email: "software.staff@gmail.com",
+    password: "Staff123",
+    role: "Staff",
+    department: "Software",
+    userId: "seed-staff-software-1",
+  },
+  {
+    name: "Client1",
+    email: "client1@gmail.com",
+    password: "Client123",
+    role: "Client",
+    userId: "seed-client1",
+  },
 ];
 
 const categorySchema = new mongoose.Schema(
@@ -76,6 +110,9 @@ const ticketSchema = new mongoose.Schema(
     assignedStaffName: String,
     assignedDepartment: String,
     assignedAt: Date,
+    hasAgentReply: { type: Boolean, default: false },
+    hasAgentView: { type: Boolean, default: false },
+    lastMessageAt: Date,
   },
   { collection: "tickets" }
 );
@@ -98,7 +135,8 @@ const messageSchema = new mongoose.Schema(
 
 const MessageModel = mongoose.model("messages", messageSchema);
 
-const normalizeText = (value = "") => (value || "").toString().trim().toLowerCase();
+const normalizeText = (value = "") =>
+  (value || "").toString().trim().toLowerCase();
 const pickRandom = (list = []) => list[Math.floor(Math.random() * list.length)];
 
 const ensureAssignedTicketsOpen = async () => {
@@ -185,14 +223,18 @@ const assignTicketToDepartmentStaff = async (ticketDoc, categoryName) => {
     ticketDoc.assignedDepartment = "";
     ticketDoc["category name"] = categoryValue;
     await ticketDoc.save();
-    return { assigned: false, staff: null, message: "No staff available for this department" };
+    return {
+      assigned: false,
+      staff: null,
+      message: "No staff available for this department",
+    };
   }
 
   ticketDoc.assignedStaffId = staff.id || "";
   ticketDoc.assignedStaffName = staff.name || "";
   ticketDoc.assignedDepartment = staff.department || categoryValue;
-    ticketDoc.status = "Open";
-    ticketDoc.assignedAt = new Date();
+  ticketDoc.status = "Open";
+  ticketDoc.assignedAt = new Date();
   ticketDoc["category name"] = categoryValue;
   await ticketDoc.save();
   return { assigned: true, staff };
@@ -210,6 +252,9 @@ const normalizeTicket = (ticket, extras = {}) => ({
   assignedStaffId: ticket.assignedStaffId || "",
   assignedStaffName: ticket.assignedStaffName || "",
   assignedDepartment: ticket.assignedDepartment || "",
+  hasAgentReply: ticket.hasAgentReply || false,
+  hasAgentView: ticket.hasAgentView || false,
+  lastMessageAt: ticket.lastMessageAt || null,
   ...extras,
 });
 
@@ -238,23 +283,22 @@ app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required." });
+    return res
+      .status(400)
+      .json({ message: "Email and password are required." });
   }
 
   // Try DB first
   const user = await UserModel.findOne({ email });
   const isDbMatch = user && user.password === password;
 
-  // Fallback to seeded accounts
-  const seedMatch = seededUsers.find((u) => u.email === email && u.password === password);
-
-  if (!isDbMatch && !seedMatch) {
+  if (!isDbMatch) {
     return res.status(401).json({ message: "Invalid email or password." });
   }
 
-  const authUser = isDbMatch ? user : seedMatch;
+  const authUser = user;
   const role = (authUser.role || "").toLowerCase();
-  const userId = authUser._id?.toString() || authUser.userId || `seed-${role || "user"}`;
+  const userId = authUser._id?.toString() || `user-${role || "user"}`;
 
   let redirect = "/";
   if (role === "staff") redirect = "/staff";
@@ -294,21 +338,6 @@ app.get("/api/users/id/:id", async (req, res) => {
       });
     }
 
-    const seedMatch = seededUsers.find(
-      (u) => u.userId === id || `seed-${(u.role || "user").toLowerCase()}` === id
-    );
-    if (seedMatch) {
-      return res.json({
-        userId: seedMatch.userId || `seed-${(seedMatch.role || "user").toLowerCase()}`,
-        role: seedMatch.role,
-        name: seedMatch.name,
-        email: seedMatch.email,
-        number: seedMatch.number || "",
-        department: seedMatch.department || "",
-        source: "seed",
-      });
-    }
-
     return res.status(404).json({ message: "User not found" });
   } catch (err) {
     console.error("Error fetching user by id", err);
@@ -321,7 +350,9 @@ app.get("/api/users/by-email", async (req, res) => {
   if (!email) return res.status(400).json({ message: "email is required" });
 
   try {
-    const user = await UserModel.findOne({ email: new RegExp(`^${email}$`, "i") }).lean();
+    const user = await UserModel.findOne({
+      email: new RegExp(`^${email}$`, "i"),
+    }).lean();
     if (user?._id) {
       return res.json({
         userId: user._id.toString(),
@@ -330,18 +361,6 @@ app.get("/api/users/by-email", async (req, res) => {
         number: user.number || "",
         department: user.department || "",
         source: "db",
-      });
-    }
-
-    const seedMatch = seededUsers.find((u) => u.email === email);
-    if (seedMatch) {
-      return res.json({
-        userId: seedMatch.userId || `seed-${(seedMatch.role || "user").toLowerCase()}`,
-        role: seedMatch.role,
-        name: seedMatch.name,
-        number: seedMatch.number || "",
-        department: seedMatch.department || "",
-        source: "seed",
       });
     }
 
@@ -364,25 +383,28 @@ app.get("/api/tickets", async (req, res) => {
           { "category name": { $exists: false } },
           { "category name": "" },
           { "category name": null },
-        ]
+        ],
       };
-    } 
-    else if (assigned === "1") {
+    } else if (assigned === "1") {
       filter = {
-        "category name": { $exists: true, $ne: "", $ne: null }
+        "category name": { $exists: true, $ne: "", $ne: null },
       };
     }
-     const tickets = await TicketModel.find(filter)
-      .sort({ assignedAt: -1, date: -1 })  // Changed from just { date: -1 }
+    const tickets = await TicketModel.find(filter)
+      .sort({ assignedAt: -1, date: -1 }) // Changed from just { date: -1 }
       .lean();
-    
-    // Check for agent replies for each ticket
-    const normalized = await Promise.all(tickets.map(async (t) => {
-      const messages = await MessageModel.find({ ticketId: t._id?.toString() }).lean();
-      const hasAgentReply = messages.some(m => m.senderId !== t.userId);
 
-      return normalizeTicket(t, { hasAgentReply });
-    }));
+    // Check for agent replies for each ticket
+    const normalized = await Promise.all(
+      tickets.map(async (t) => {
+        const messages = await MessageModel.find({
+          ticketId: t._id?.toString(),
+        }).lean();
+        const hasAgentReply = messages.some((m) => m.senderId !== t.userId);
+
+        return normalizeTicket(t, { hasAgentReply });
+      })
+    );
 
     res.json(normalized);
   } catch (err) {
@@ -398,14 +420,20 @@ app.get("/api/staff/:staffId/tickets", async (req, res) => {
       return res.status(400).json({ message: "staffId is required" });
     }
 
-    const tickets = await TicketModel.find({ assignedStaffId: staffId }).sort({ date: -1 }).lean();
+    const tickets = await TicketModel.find({ assignedStaffId: staffId })
+      .sort({ date: -1 })
+      .lean();
 
-    const normalized = await Promise.all(tickets.map(async (t) => {
-      const messages = await MessageModel.find({ ticketId: t._id?.toString() }).lean();
-      const hasAgentReply = messages.some(m => m.senderId !== staffId);
+    const normalized = await Promise.all(
+      tickets.map(async (t) => {
+        const messages = await MessageModel.find({
+          ticketId: t._id?.toString(),
+        }).lean();
+        const hasAgentReply = messages.some((m) => m.senderId !== staffId);
 
-      return normalizeTicket(t, { hasAgentReply });
-    }));
+        return normalizeTicket(t, { hasAgentReply });
+      })
+    );
 
     res.json(normalized);
   } catch (err) {
@@ -423,15 +451,21 @@ app.get("/api/tickets/user/:userId", async (req, res) => {
       return res.status(400).json({ message: "userId is required" });
     }
 
-    const tickets = await TicketModel.find({ userId }).sort({ date: -1 }).lean();
-    
-    // Check for agent replies for each ticket
-    const normalized = await Promise.all(tickets.map(async (t) => {
-      const messages = await MessageModel.find({ ticketId: t._id?.toString() }).lean();
-      const hasAgentReply = messages.some(m => m.senderId !== userId);
+    const tickets = await TicketModel.find({ userId })
+      .sort({ date: -1 })
+      .lean();
 
-      return normalizeTicket(t, { hasAgentReply });
-    }));
+    // Check for agent replies for each ticket
+    const normalized = await Promise.all(
+      tickets.map(async (t) => {
+        const messages = await MessageModel.find({
+          ticketId: t._id?.toString(),
+        }).lean();
+        const hasAgentReply = messages.some((m) => m.senderId !== userId);
+
+        return normalizeTicket(t, { hasAgentReply });
+      })
+    );
 
     res.json(normalized);
   } catch (err) {
@@ -445,20 +479,19 @@ app.post("/api/tickets", async (req, res) => {
     const { title, description, userId: incomingUserId, email } = req.body;
 
     if (!title || !description) {
-      return res.status(400).json({ message: "title and description are required." });
+      return res
+        .status(400)
+        .json({ message: "title and description are required." });
     }
 
     let userId = incomingUserId;
 
     if (!userId && email) {
-      const dbUser = await UserModel.findOne({ email: new RegExp(`^${email}$`, "i") }).lean();
+      const dbUser = await UserModel.findOne({
+        email: new RegExp(`^${email}$`, "i"),
+      }).lean();
       if (dbUser?._id) {
         userId = dbUser._id.toString();
-      } else {
-        const seed = seededUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
-        if (seed) {
-          userId = seed.userId || `seed-${(seed.role || "user").toLowerCase()}`;
-        }
       }
     }
 
@@ -541,11 +574,12 @@ app.put("/api/tickets/:id", async (req, res) => {
       await ticket.save();
     }
 
-    const message = category !== undefined
-      ? (assignment?.assigned
+    const message =
+      category !== undefined
+        ? assignment?.assigned
           ? "Ticket updated and staff assigned"
-          : assignment?.message || "Ticket updated successfully")
-      : "Ticket updated successfully";
+          : assignment?.message || "Ticket updated successfully"
+        : "Ticket updated successfully";
 
     res.json({
       message,
@@ -627,7 +661,9 @@ app.post("/api/tickets/:ticketId/messages", async (req, res) => {
     const { senderId, message, senderName, staffId, receiverId } = req.body;
 
     if (!senderId || !message) {
-      return res.status(400).json({ message: "senderId and message are required" });
+      return res
+        .status(400)
+        .json({ message: "senderId and message are required" });
     }
 
     // Get ticket to resolve staffId and determine receiver
@@ -637,7 +673,7 @@ app.post("/api/tickets/:ticketId/messages", async (req, res) => {
     }
 
     const resolvedStaffId = staffId || ticket.assignedStaffId || "";
-    
+
     // Determine receiverId: if sender is client, receiver is staff; if sender is staff, receiver is client
     let resolvedReceiverId = receiverId;
     if (!resolvedReceiverId) {
@@ -660,10 +696,44 @@ app.post("/api/tickets/:ticketId/messages", async (req, res) => {
       timestamp: new Date(),
     });
 
+    // If staff is sending the message, mark ticket as having agent reply
+    // and reset hasAgentView so client sees the "New Reply" badge
+    const isStaffMessage = senderId !== ticket.userId;
+    if (isStaffMessage) {
+      await TicketModel.findByIdAndUpdate(ticketId, {
+        hasAgentReply: true,
+        hasAgentView: false,
+        lastMessageAt: new Date(),
+      });
+    }
+
     res.status(201).json({ message: "Message sent", data: newMessage });
   } catch (err) {
     console.error("Error sending message:", err);
     res.status(500).json({ message: "Failed to send message" });
+  }
+});
+
+// MARK TICKET AS VIEWED BY CLIENT
+app.post("/api/tickets/:id/mark-viewed", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Update the ticket to mark that client has viewed the agent's message
+    const result = await TicketModel.findByIdAndUpdate(
+      id,
+      { hasAgentView: true },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    res.json({ success: true, message: "Ticket marked as viewed" });
+  } catch (err) {
+    console.error("Error marking ticket as viewed:", err);
+    res.status(500).json({ message: "Failed to mark ticket as viewed" });
   }
 });
 

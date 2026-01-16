@@ -224,6 +224,21 @@
   color: #92400e;
 }
 
+.status-badge.open {
+  background: #e5efff;
+  color: #3f7dfd;
+}
+
+.status-badge.resolved {
+  background: #d8f5e3;
+  color: #1f7a3f;
+}
+
+.status-badge.pending {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
 .priority-badge {
   display: inline-block;
   padding: 4px 12px;
@@ -283,62 +298,48 @@
 }
 
 .message {
-  margin-bottom: 16px;
-  animation: slideIn 0.3s ease;
+  margin-bottom: 14px;
+  background: #fdfdfd;
+  border: 1px solid #ebeff6;
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #1f2d4a;
+  max-width: 92%;
+  margin-right: auto;
+  animation: slideIn 0.25s ease;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.message.staff {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: #dfe3fb;
+  margin-left: auto;
+  margin-right: 0;
 }
 
 .message-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin-bottom: 6px;
+  font-weight: 500;
 }
 
 .message-sender {
-  font-weight: 600;
+  color: #1f2d4a;
   font-size: 14px;
-  color: #111827;
-}
-
-.message-sender.client {
-  color: #6366f1;
-}
-
-.message-sender.staff {
-  color: #059669;
 }
 
 .message-time {
   font-size: 12px;
-  color: #9ca3af;
+  color: #64748b;
 }
 
 .message-content {
-  background: #f9fafb;
-  padding: 12px 16px;
-  border-radius: 8px;
+  margin: 0;
+  line-height: 1.55;
   font-size: 14px;
-  line-height: 1.5;
-  color: #374151;
-}
-
-.message.client .message-content {
-  background: #eff6ff;
-}
-
-.message.staff .message-content {
-  background: #f0fdf4;
+  color: #1f2d4a;
 }
 
 /* Delete Modal Styles */

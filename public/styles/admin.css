@@ -526,7 +526,7 @@ body {
 }
 
 .tickets-table th {
-  padding: 14px 16px;
+  padding: 14px 14px;
   text-align: left;
   font-size: 13px;
   font-weight: 700;
@@ -636,6 +636,21 @@ body {
 .status-badge.in-progress {
   background: var(--pill-yellow);
   color: var(--pill-yellow-text);
+}
+
+.status-badge.open {
+  background: var(--pill-blue);
+  color: var(--pill-blue-text);
+}
+
+.status-badge.resolved {
+  background: #d8f5e3;
+  color: #1f7a3f;
+}
+
+.status-badge.pending {
+  background: #ede9fe;
+  color: #6d28d9;
 }
 
 /* ========================================
