@@ -45,6 +45,7 @@ const userSchema = new mongoose.Schema(
 
 const UserModel = mongoose.model("users", userSchema);
 
+<<<<<<< HEAD
 // Simple in-memory seed accounts (plaintext for demo only)
 const seededUsers = [
   {
@@ -87,6 +88,8 @@ const seededUsers = [
   },
 ];
 
+=======
+>>>>>>> 118947adac87bc182e97c3822af2cc48ea6daa7c
 const categorySchema = new mongoose.Schema(
   {
     "category code": String,
@@ -292,19 +295,27 @@ app.post("/auth/login", async (req, res) => {
   const user = await UserModel.findOne({ email });
   const isDbMatch = user && user.password === password;
 
+<<<<<<< HEAD
   // Fallback to seeded accounts
   const seedMatch = seededUsers.find(
     (u) => u.email === email && u.password === password
   );
 
   if (!isDbMatch && !seedMatch) {
+=======
+  if (!isDbMatch) {
+>>>>>>> 118947adac87bc182e97c3822af2cc48ea6daa7c
     return res.status(401).json({ message: "Invalid email or password." });
   }
 
-  const authUser = isDbMatch ? user : seedMatch;
+  const authUser = user;
   const role = (authUser.role || "").toLowerCase();
+<<<<<<< HEAD
   const userId =
     authUser._id?.toString() || authUser.userId || `seed-${role || "user"}`;
+=======
+  const userId = authUser._id?.toString() || `user-${role || "user"}`;
+>>>>>>> 118947adac87bc182e97c3822af2cc48ea6daa7c
 
   let redirect = "/";
   if (role === "staff") redirect = "/staff";
@@ -344,6 +355,7 @@ app.get("/api/users/id/:id", async (req, res) => {
       });
     }
 
+<<<<<<< HEAD
     const seedMatch = seededUsers.find(
       (u) =>
         u.userId === id || `seed-${(u.role || "user").toLowerCase()}` === id
@@ -362,6 +374,8 @@ app.get("/api/users/id/:id", async (req, res) => {
       });
     }
 
+=======
+>>>>>>> 118947adac87bc182e97c3822af2cc48ea6daa7c
     return res.status(404).json({ message: "User not found" });
   } catch (err) {
     console.error("Error fetching user by id", err);
@@ -388,6 +402,7 @@ app.get("/api/users/by-email", async (req, res) => {
       });
     }
 
+<<<<<<< HEAD
     const seedMatch = seededUsers.find((u) => u.email === email);
     if (seedMatch) {
       return res.json({
@@ -402,6 +417,8 @@ app.get("/api/users/by-email", async (req, res) => {
       });
     }
 
+=======
+>>>>>>> 118947adac87bc182e97c3822af2cc48ea6daa7c
     return res.status(404).json({ message: "User not found" });
   } catch (err) {
     console.error("Error fetching user by email", err);
@@ -530,6 +547,7 @@ app.post("/api/tickets", async (req, res) => {
       }).lean();
       if (dbUser?._id) {
         userId = dbUser._id.toString();
+<<<<<<< HEAD
       } else {
         const seed = seededUsers.find(
           (u) => u.email.toLowerCase() === email.toLowerCase()
@@ -537,6 +555,8 @@ app.post("/api/tickets", async (req, res) => {
         if (seed) {
           userId = seed.userId || `seed-${(seed.role || "user").toLowerCase()}`;
         }
+=======
+>>>>>>> 118947adac87bc182e97c3822af2cc48ea6daa7c
       }
     }
 

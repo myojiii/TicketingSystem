@@ -1,4 +1,72 @@
 document.addEventListener('DOMContentLoaded', async () => {
+
+// ========================================
+  // SIDEBAR TOGGLE FUNCTIONALITY
+  // ========================================
+  const sidebar = document.querySelector('.sidebar');
+  const layout = document.querySelector('.layout');
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  
+  // Load saved state from localStorage
+  const savedState = localStorage.getItem('sidebarCollapsed');
+  if (savedState === 'true') {
+    sidebar.classList.add('collapsed');
+    layout.classList.add('sidebar-collapsed');
+  }
+  
+  // Toggle sidebar on button click
+  toggleBtn?.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    layout.classList.toggle('sidebar-collapsed');
+    
+    // Save state to localStorage
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    localStorage.setItem('sidebarCollapsed', isCollapsed);
+  });
+// ========================================
+// NAVIGATION ACTIVE STATE
+// ========================================
+const navButtons = document.querySelectorAll('.nav-btn');
+
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Remove active class from all buttons
+    navButtons.forEach(b => b.classList.remove('active'));
+    
+    // Add active class to clicked button
+    btn.classList.add('active');
+    
+    // Here you can add navigation logic
+    const buttonText = btn.querySelector('.nav-text').textContent;
+    console.log('Navigating to:', buttonText);
+    
+    // Example: You can add routing logic here
+    // if (buttonText === 'Management') {
+    //   window.location.href = '/admin/management';
+    // }
+  });
+});
+
+// ========================================
+// LOGOUT FUNCTIONALITY
+// ========================================
+const logoutBtn = document.getElementById('logout-btn');
+
+logoutBtn?.addEventListener('click', () => {
+  // Show confirmation dialog
+  const confirmLogout = confirm('Are you sure you want to logout?');
+  
+  if (confirmLogout) {
+    // Clear any stored session data
+    localStorage.removeItem('sidebarCollapsed');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
+    // Add any other session data you want to clear
+    
+    // Redirect to login page
+    window.location.href = '/';
+  }
+});
   // ========================================
   // GLOBAL STATE
   // ========================================
