@@ -54,6 +54,8 @@ const getUserById = async (req, res) => {
         name: user.name,
         email: user.email,
         number: user.number || "",
+        city: user.city || "",
+        province: user.province || "",
         department: user.department || "",
         source: "db",
       });

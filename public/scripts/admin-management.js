@@ -18,6 +18,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const staffPasswordInput = document.getElementById("staff-password");
   const staffDeptInput = document.getElementById("staff-department");
   const staffNumberInput = document.getElementById("staff-number");
+  const editStaffModal = document.getElementById("edit-staff-modal");
+  const editStaffClose = document.getElementById("edit-staff-close");
+  const editStaffCancel = document.getElementById("edit-staff-cancel");
+  const editStaffSave = document.getElementById("edit-staff-save");
+  const esName = document.getElementById("es-name");
+  const esEmail = document.getElementById("es-email");
+  const esId = document.getElementById("es-id");
+  const esDate = document.getElementById("es-date");
+  const esTickets = document.getElementById("es-tickets");
+  const esDept = document.getElementById("es-dept");
+  const esNumber = document.getElementById("es-number");
+  const esCity = document.getElementById("es-city");
+  const esProvince = document.getElementById("es-province");
   const addCategoryBtn = document.getElementById("add-category-btn");
   const addCategoryModal = document.getElementById("add-category-modal");
   const addCategoryClose = document.getElementById("add-category-close");
@@ -25,11 +38,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const addCategorySave = document.getElementById("add-category-save");
   const categoryCodeInput = document.getElementById("category-code");
   const categoryNameInput = document.getElementById("category-name");
+  const viewUserModal = document.getElementById("view-user-modal");
+  const viewUserClose = document.getElementById("view-user-close");
+  const viewUserCloseBtn = document.getElementById("view-user-close-btn");
+  const vuName = document.getElementById("vu-name");
+  const vuEmail = document.getElementById("vu-email");
+  const vuId = document.getElementById("vu-id");
+  const vuTickets = document.getElementById("vu-tickets");
+  const vuDate = document.getElementById("vu-date");
+  const vuNumber = document.getElementById("vu-number");
+  const vuAddress = document.getElementById("vu-address");
+  const viewStaffModal = document.getElementById("view-staff-modal");
+  const viewStaffClose = document.getElementById("view-staff-close");
+  const viewStaffCloseBtn = document.getElementById("view-staff-close-btn");
+  const vsName = document.getElementById("vs-name");
+  const vsEmail = document.getElementById("vs-email");
+  const vsId = document.getElementById("vs-id");
+  const vsDept = document.getElementById("vs-dept");
+  const vsDate = document.getElementById("vs-date");
+  const vsTickets = document.getElementById("vs-tickets");
+  const vsNumber = document.getElementById("vs-number");
+  const vsAddress = document.getElementById("vs-address");
+
+  let editingStaffId = null;
 
   const data = {
     users: [],
     staff: [],
     category: [],
+    categoriesList: [],
   };
 
   const formatDate = (dateStr) => {
@@ -52,17 +89,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     tableBodyUsers.innerHTML = rows
       .map(
-        ({ name, email, date, tickets }) => `
-          <tr>
+        ({ id, name, email, date, tickets }) => `
+          <tr data-user-id="${id || ""}">
             <td>${name || ""}</td>
             <td>${email || ""}</td>
             <td>${formatDate(date)}</td>
             <td class="center">${tickets ?? 0}</td>
-            <td><button class="ghost-btn small"><span aria-hidden="true">👁</span> View Details</button></td>
+            <td><button class="ghost-btn small view-user-btn"><span aria-hidden="true">👁</span> View Details</button></td>
           </tr>
         `
       )
       .join("");
+    attachUserViewHandlers();
   };
 
   const renderStaff = () => {
@@ -78,15 +116,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     tableBodyStaff.innerHTML = rows
       .map(
-        ({ name, department, date, tickets }) => `
-          <tr>
+        ({ id, name, department, date, tickets }) => `
+          <tr data-staff-id="${id || ""}">
             <td>${name || ""}</td>
             <td>${department || ""}</td>
             <td>${formatDate(date)}</td>
             <td class="center">${tickets ?? 0}</td>
             <td>
               <div class="action-icons">
-                <button class="icon-action-btn view-btn" title="View">👁</button>
+                <button class="icon-action-btn view-btn staff-view-btn" title="View">👁</button>
                 <button class="icon-action-btn edit-btn" title="Update">✏️</button>
                 <button class="icon-action-btn delete-btn" title="Delete">🗑️</button>
               </div>
@@ -95,6 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
         `
       )
       .join("");
+    attachStaffViewHandlers();
+    attachStaffEditHandlers();
+    attachStaffDeleteHandlers();
   };
 
   const renderCategory = () => {
@@ -184,16 +225,32 @@ document.addEventListener("DOMContentLoaded", () => {
     renderStaff();
   };
 
+  const setDepartmentOptions = (selectEl) => {
+    if (!selectEl) return;
+    selectEl.innerHTML = '<option value="">Select a department</option>';
+    data.categoriesList.forEach((c) => {
+      const name = c.name || c["category name"] || "";
+      if (!name) return;
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      selectEl.appendChild(opt);
+    });
+  };
+
   const loadCategories = async () => {
     try {
       const res = await fetch("/api/management/categories");
       if (!res.ok) throw new Error("Failed to load categories");
       const categories = await res.json();
       data.category = Array.isArray(categories) ? categories : [];
+      data.categoriesList = data.category.map((c) => ({ name: c.name || c["category name"] || "" }));
     } catch (err) {
       console.error(err);
       data.category = [];
     }
+    setDepartmentOptions(staffDeptInput);
+    setDepartmentOptions(esDept);
     renderCategory();
   };
 
@@ -242,6 +299,159 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const openUserModal = (user) => {
+    if (!viewUserModal) return;
+    vuName.textContent = user?.name || "—";
+    vuEmail.textContent = user?.email || "—";
+    vuId.textContent = user?.userId || user?.id || "—";
+    vuTickets.textContent = user?.tickets ?? 0;
+    vuDate.textContent = formatDate(user?.date);
+    vuNumber.textContent = user?.number || "Not provided";
+    const address = user?.address || [user?.city, user?.province].filter(Boolean).join(", ");
+    vuAddress.textContent = address || "Not provided";
+    viewUserModal.classList.remove("hidden");
+  };
+
+  const closeUserModal = () => {
+    viewUserModal?.classList.add("hidden");
+  };
+
+  viewUserClose?.addEventListener("click", closeUserModal);
+  viewUserCloseBtn?.addEventListener("click", closeUserModal);
+
+  const fetchUserDetails = async (userId) => {
+    try {
+      const res = await fetch(`/api/users/id/${encodeURIComponent(userId)}`);
+      if (!res.ok) throw new Error("Failed to fetch user");
+      return await res.json();
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
+  const attachUserViewHandlers = () => {
+    document.querySelectorAll(".view-user-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const tr = e.currentTarget.closest("tr");
+        const userId = tr?.dataset.userId;
+        if (!userId) return;
+        const summary = data.users.find((u) => u.id === userId);
+        const details = await fetchUserDetails(userId);
+        openUserModal({
+          ...summary,
+          ...details,
+          userId: userId,
+        });
+      });
+    });
+  };
+
+  const openStaffModal = (staff) => {
+    if (!viewStaffModal) return;
+    vsName.textContent = staff?.name || "—";
+    vsEmail.textContent = staff?.email || "—";
+    vsId.textContent = staff?.id || "—";
+    vsDept.textContent = staff?.department || "—";
+    vsDate.textContent = formatDate(staff?.date);
+    vsTickets.textContent = staff?.tickets ?? 0;
+    vsNumber.textContent = staff?.number || "Not provided";
+    const address = staff?.address || [staff?.city, staff?.province].filter(Boolean).join(", ");
+    vsAddress.textContent = address || "Not provided";
+    viewStaffModal.classList.remove("hidden");
+  };
+
+  const closeStaffModal = () => {
+    viewStaffModal?.classList.add("hidden");
+  };
+
+  viewStaffClose?.addEventListener("click", closeStaffModal);
+  viewStaffCloseBtn?.addEventListener("click", closeStaffModal);
+
+  const attachStaffViewHandlers = () => {
+    document.querySelectorAll(".staff-view-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const tr = e.currentTarget.closest("tr");
+        const staffId = tr?.dataset.staffId;
+        if (!staffId) return;
+        const summary = data.staff.find((s) => s.id === staffId);
+        openStaffModal(summary || {});
+      });
+    });
+  };
+
+  const openEditStaffModal = (staff) => {
+    if (!editStaffModal) return;
+    editingStaffId = staff?.id || null;
+    esName.textContent = staff?.name || "—";
+    esEmail.textContent = staff?.email || "—";
+    esId.textContent = staff?.id || "—";
+    esDate.textContent = formatDate(staff?.date);
+    esTickets.textContent = staff?.tickets ?? 0;
+    setDepartmentOptions(esDept);
+    esDept.value = staff?.department || "";
+    esNumber.value = staff?.number || "";
+    esCity.value = staff?.city || "";
+    esProvince.value = staff?.province || "";
+    editStaffModal.classList.remove("hidden");
+  };
+
+  const closeEditStaffModal = () => {
+    editStaffModal?.classList.add("hidden");
+    editingStaffId = null;
+    esId.textContent = "—";
+    esDate.textContent = "—";
+    esTickets.textContent = "0";
+    esDept.value = "";
+    esNumber.value = "";
+    esCity.value = "";
+    esProvince.value = "";
+  };
+
+  editStaffClose?.addEventListener("click", closeEditStaffModal);
+  editStaffCancel?.addEventListener("click", closeEditStaffModal);
+
+  const attachStaffEditHandlers = () => {
+    document.querySelectorAll("#mgmt-table-body-staff .edit-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const tr = e.currentTarget.closest("tr");
+        const staffId = tr?.dataset.staffId;
+        if (!staffId) return;
+        const summary = data.staff.find((s) => s.id === staffId);
+        if (!summary) return;
+        openEditStaffModal(summary);
+      });
+    });
+  };
+
+  const attachStaffDeleteHandlers = () => {
+    document.querySelectorAll("#mgmt-table-body-staff .delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const tr = e.currentTarget.closest("tr");
+        const staffId = tr?.dataset.staffId;
+        if (!staffId) return;
+        const staff = data.staff.find((s) => s.id === staffId);
+        const name = staff?.name || "this staff";
+        const confirmed = window.confirm(`Delete ${name}? This action can't be undone.`);
+        if (!confirmed) return;
+
+        try {
+          const res = await fetch(`/api/management/staff/${encodeURIComponent(staffId)}`, {
+            method: "DELETE",
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || "Failed to delete staff");
+          }
+          await Promise.all([loadStaff(), loadCategories()]);
+        } catch (err) {
+          console.error(err);
+          alert(err.message || "Failed to delete staff");
+        }
+      });
+    });
+  };
+
   const openAddStaffModal = () => {
     addStaffModal?.classList.remove("hidden");
   };
@@ -264,18 +474,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/categories");
       if (!res.ok) throw new Error("Failed to load categories");
       const categories = await res.json();
-      const select = staffDeptInput;
-      if (!select) return;
-      select.innerHTML = '<option value="">Select a department</option>';
-      categories.forEach((c) => {
-        const name = c.name || c["category name"] || "";
-        if (name) {
-          const opt = document.createElement("option");
-          opt.value = name;
-          opt.textContent = name;
-          select.appendChild(opt);
-        }
-      });
+      data.categoriesList = Array.isArray(categories) ? categories : [];
+      setDepartmentOptions(staffDeptInput);
+      setDepartmentOptions(esDept);
     } catch (err) {
       console.error(err);
     }
@@ -312,6 +513,44 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error(err);
       alert(err.message || "Failed to create staff");
+    }
+  });
+
+  editStaffSave?.addEventListener("click", async () => {
+    if (!editingStaffId) {
+      closeEditStaffModal();
+      return;
+    }
+
+    const payload = {
+      department: esDept.value.trim(),
+      number: esNumber.value.trim(),
+      city: esCity.value.trim(),
+      province: esProvince.value.trim(),
+    };
+
+    if (!payload.department) {
+      alert("Department is required.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/management/staff/${encodeURIComponent(editingStaffId)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to update staff");
+      }
+
+      await loadStaff();
+      closeEditStaffModal();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to update staff");
     }
   });
 

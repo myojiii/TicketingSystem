@@ -843,6 +843,19 @@ body {
   border-bottom: none;
 }
 
+.modal-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.modal-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2d4a;
+}
+
 /* ========================================
    MODAL STYLES
    ======================================== */

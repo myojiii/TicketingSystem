@@ -314,24 +314,213 @@
   </div>
 
   <!-- Add Category Modal -->
-  <div class="modal-overlay hidden" id="add-category-modal" role="dialog" aria-modal="true">
+  <div class="modal-overlay hidden mgmt-modal" id="add-category-modal" role="dialog" aria-modal="true">
     <div class="modal-card" role="document">
       <header class="modal-header">
         <h3 class="modal-title">Add New Category</h3>
         <button class="modal-close" id="add-category-close" aria-label="Close dialog">×</button>
       </header>
 
-      <div class="modal-body">
-        <label class="modal-label" for="category-code">Category Code</label>
-        <input id="category-code" class="modal-input" type="text" placeholder="Enter category code">
+      <div class="modal-sub">Create new category</div>
+      <div class="modal-chip">Category</div>
 
-        <label class="modal-label" for="category-name">Category Name</label>
-        <input id="category-name" class="modal-input" type="text" placeholder="Enter category name">
+      <div class="modal-body modal-grid">
+        <div class="modal-input-group">
+          <label class="modal-label" for="category-code">Category Code</label>
+          <input id="category-code" class="modal-input" type="text" placeholder="Enter category code">
+        </div>
+
+        <div class="modal-input-group">
+          <label class="modal-label" for="category-name">Category Name</label>
+          <input id="category-name" class="modal-input" type="text" placeholder="Enter category name">
+        </div>
       </div>
 
       <footer class="modal-footer">
         <button class="modal-btn" id="add-category-cancel">Cancel</button>
         <button class="modal-btn primary" id="add-category-save">Create Category</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- View User Modal -->
+  <div class="modal-overlay hidden mgmt-modal" id="view-user-modal" role="dialog" aria-modal="true">
+    <div class="modal-card" role="document">
+      <header class="modal-header">
+        <h3 class="modal-title">User Details</h3>
+        <button class="modal-close" id="view-user-close" aria-label="Close dialog">×</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Name</div>
+            <div class="modal-value" id="vu-name">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Email</div>
+            <div class="modal-value" id="vu-email">—</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">User ID</div>
+            <div class="modal-value" id="vu-id">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Tickets Submitted</div>
+            <div class="modal-value" id="vu-tickets">0</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Date Created</div>
+            <div class="modal-value" id="vu-date">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Phone</div>
+            <div class="modal-value" id="vu-number">Not provided</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Address</div>
+            <div class="modal-value" id="vu-address">Not provided</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="modal-btn primary" id="view-user-close-btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- View Staff Modal -->
+  <div class="modal-overlay hidden mgmt-modal" id="view-staff-modal" role="dialog" aria-modal="true">
+    <div class="modal-card" role="document">
+      <header class="modal-header">
+        <h3 class="modal-title">Staff Details</h3>
+        <button class="modal-close" id="view-staff-close" aria-label="Close dialog">×</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Name</div>
+            <div class="modal-value" id="vs-name">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Email</div>
+            <div class="modal-value" id="vs-email">—</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Staff ID</div>
+            <div class="modal-value" id="vs-id">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Department</div>
+            <div class="modal-value" id="vs-dept">—</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Date Created</div>
+            <div class="modal-value" id="vs-date">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Assigned Tickets</div>
+            <div class="modal-value" id="vs-tickets">0</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Phone</div>
+            <div class="modal-value" id="vs-number">Not provided</div>
+          </div>
+          <div>
+            <div class="modal-label">Address</div>
+            <div class="modal-value" id="vs-address">Not provided</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="modal-btn primary" id="view-staff-close-btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Edit Staff Modal -->
+  <div class="modal-overlay hidden mgmt-modal" id="edit-staff-modal" role="dialog" aria-modal="true">
+    <div class="modal-card" role="document">
+      <header class="modal-header">
+        <h3 class="modal-title">Edit Staff</h3>
+        <button class="modal-close" id="edit-staff-close" aria-label="Close dialog">×</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Name</div>
+            <div class="modal-value" id="es-name">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Email</div>
+            <div class="modal-value" id="es-email">—</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Staff ID</div>
+            <div class="modal-value" id="es-id">—</div>
+          </div>
+          <div>
+            <label class="modal-label" for="es-dept">Department</label>
+            <select id="es-dept" class="modal-input">
+              <option value="">Select a department</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Date Created</div>
+            <div class="modal-value" id="es-date">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Assigned Tickets</div>
+            <div class="modal-value" id="es-tickets">0</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <label class="modal-label" for="es-number">Phone</label>
+            <input id="es-number" class="modal-input" type="text" placeholder="Enter phone">
+          </div>
+          <div>
+            <div class="modal-label">Address</div>
+            <div class="modal-summary" style="gap: 12px; padding: 0; border: none; box-shadow: none;">
+              <input id="es-city" class="modal-input" type="text" placeholder="City">
+              <input id="es-province" class="modal-input" type="text" placeholder="Province">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="modal-btn" id="edit-staff-cancel">Cancel</button>
+        <button class="modal-btn primary" id="edit-staff-save">Save Changes</button>
       </footer>
     </div>
   </div>

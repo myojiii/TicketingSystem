@@ -8,6 +8,9 @@ const userSchema = new mongoose.Schema(
     role: String,
     department: String,
     number: String,
+    city: String,
+    province: String,
+    deletedAt: Date,
   },
   { collection: "users", timestamps: true }
 );

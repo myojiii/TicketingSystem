@@ -26,6 +26,7 @@ const getCategorySummaries = async (req, res) => {
     const staff = await UserModel.find({
       role: { $regex: /^staff$/i },
       department: { $exists: true, $ne: "" },
+      $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
     }).lean();
 
     const staffMap = staff.reduce((acc, user) => {
@@ -78,7 +79,7 @@ const createCategory = async (req, res) => {
   try {
     const { code, name } = req.body || {};
     if (!code || !name) {
-      return res.status(400).json({ message: "category code and name are required" });
+      return res.status(400).json({ message: "Category code and name are required" });
     }
 
     const existing = await CategoryModel.findOne({
