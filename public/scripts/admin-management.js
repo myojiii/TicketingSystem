@@ -547,7 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!staffId) return;
         const staff = data.staff.find((s) => s.id === staffId);
         const name = staff?.name || "this staff";
-        const confirmed = window.confirm(`Delete ${name}? They will be hidden from the site but kept in the database.`);
+        const confirmed = window.confirm(`Delete ${name}? This action can't be undone.`);
         if (!confirmed) return;
 
         try {
