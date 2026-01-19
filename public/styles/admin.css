@@ -1164,3 +1164,241 @@ body {
     transform: translateX(400px);
   }
 }
+/* ========================================
+   BELL NOTIFICATION - FIXED POSITIONING
+   ======================================== */
+
+.topbar-actions {
+  margin-left: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bell-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.bell-btn:hover {
+  background: #f9fafb;
+  border-color: #cbd5e1;
+}
+
+.bell-btn.has-notifications {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.bell-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--text);
+  transition: fill 0.2s ease;
+}
+
+.bell-btn:hover svg {
+  fill: var(--primary);
+}
+
+.bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.bell-badge:empty {
+  display: none;
+}
+
+/* Notifications Panel */
+.notifications-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 380px;
+  max-height: 480px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  animation: slideDown 0.3s ease-out;
+}
+
+.notifications-panel.hidden {
+  display: none;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notifications-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #f9fafb;
+  border-radius: 16px 16px 0 0;
+}
+
+.notifications-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.notifications-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mark-all-read-btn,
+.close-notifications {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.mark-all-read-btn:hover {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.close-notifications:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.mark-all-read-btn svg,
+.close-notifications svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--text);
+}
+
+.mark-all-read-btn:hover svg {
+  fill: #059669;
+}
+
+.close-notifications:hover svg {
+  fill: #dc2626;
+}
+
+.notifications-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.notification-item {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  position: relative;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: #f9fafb;
+}
+
+.notification-item.unread {
+  background: #eef2ff;
+}
+
+.notification-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 4px;
+}
+
+.notification-message {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .notifications-panel {
+    width: calc(100vw - 24px);
+    right: 12px;
+  }
+}
