@@ -6,9 +6,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const layout = document.querySelector('.layout');
   const toggleBtn = document.getElementById('sidebar-toggle');
   
-  // Load saved state from localStorage
-  const savedState = localStorage.getItem('sidebarCollapsed');
-  if (savedState === 'true') {
+  // Load saved state from in-memory storage
+  let sidebarCollapsed = false;
+  
+  if (sidebarCollapsed) {
     sidebar.classList.add('collapsed');
     layout.classList.add('sidebar-collapsed');
   }
@@ -17,10 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   toggleBtn?.addEventListener('click', () => {
     sidebar.classList.toggle('collapsed');
     layout.classList.toggle('sidebar-collapsed');
-    
-    // Save state to localStorage
-    const isCollapsed = sidebar.classList.contains('collapsed');
-    localStorage.setItem('sidebarCollapsed', isCollapsed);
+    sidebarCollapsed = sidebar.classList.contains('collapsed');
   });
 
   // ========================================
@@ -32,11 +30,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const confirmLogout = confirm('Are you sure you want to logout?');
     
     if (confirmLogout) {
-      // Clear session data
-      localStorage.removeItem('sidebarCollapsed');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userRole');
-      
       // Redirect to login
       window.location.href = '/';
     }
@@ -45,140 +38,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ========================================
   // NOTIFICATION SYSTEM
   // ========================================
-  // ========================================
-  // PERSISTENT NOTIFICATIONS SYSTEM
-  // ========================================
-  let notificationsList = [];
-
-  const updateNotificationPanel = () => {
-    const listContainer = document.getElementById("notifications-list");
-    const badge = document.getElementById("bell-badge");
-    
-    if (!listContainer) return;
-
-    if (notificationsList.length === 0) {
-      listContainer.innerHTML = '<p class="empty-state">No notifications</p>';
-      if (badge) badge.textContent = "0";
-      return;
-    }
-
-    const unreadCount = notificationsList.filter((n) => !n.read).length;
-
-    listContainer.innerHTML = notificationsList
-      .map(
-        (notif, index) => `
-      <div class="notification-item ${notif.type} ${notif.read ? "read" : "unread"}" data-index="${index}">
-        <div class="notification-item-icon">${notif.icon}</div>
-        <div class="notification-item-content">
-          <div class="notification-item-title">${notif.title}</div>
-          <div class="notification-item-message">${notif.message}</div>
-          <div class="notification-item-time">${notif.time}</div>
-        </div>
-        <button class="notification-item-close" aria-label="Remove" data-index="${index}">
-          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="currentColor"/></svg>
-        </button>
-      </div>
-    `
-      )
-      .join("");
-
-    // Add close handlers
-    listContainer.querySelectorAll(".notification-item-close").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const index = parseInt(btn.dataset.index);
-        notificationsList.splice(index, 1);
-        updateNotificationPanel();
-      });
-    });
-
-    // Add click handler to mark as read
-    listContainer.querySelectorAll(".notification-item").forEach((item) => {
-      item.addEventListener("click", () => {
-        const index = parseInt(item.dataset.index);
-        notificationsList[index].read = true;
-        updateNotificationPanel();
-      });
-    });
-
-    if (badge) badge.textContent = unreadCount > 0 ? unreadCount : "0";
-  };
-
-  const addNotificationToPanel = (title, message, type = "info") => {
-    const time = new Date().toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    
-    let icon = "ℹ️";
-    if (type === "success") icon = "✓";
-    if (type === "error") icon = "✕";
-
-    // Check if this notification already exists (prevent duplicates)
-    const isDuplicate = notificationsList.some(
-      (n) => n.title === title && n.message === message
-    );
-    
-    if (isDuplicate) {
-      console.log("⚠️ Duplicate notification ignored:", title);
-      return;
-    }
-
-    notificationsList.unshift({ 
-      title, 
-      message, 
-      type, 
-      time, 
-      icon,
-      read: false 
-    });
-    
-    // Keep only last 50 notifications
-    if (notificationsList.length > 50) {
-      notificationsList = notificationsList.slice(0, 50);
-    }
-
-    updateNotificationPanel();
-
-    // Show toast notification
-    showNotification(title, message, type, 5000);
-
-    // Auto-mark as read after 5 seconds (user has seen the toast)
-    setTimeout(() => {
-      const notif = notificationsList.find((n) => n.title === title && n.message === message);
-      if (notif) {
-        notif.read = true;
-        updateNotificationPanel();
-      }
-    }, 5000);
-  };
-
-  // Bell button toggle
-  const bellBtn = document.getElementById("bell-btn");
-  const notificationsPanel = document.getElementById("notifications-panel");
-  const closeNotifications = document.getElementById("close-notifications");
-
-  bellBtn?.addEventListener("click", () => {
-    notificationsPanel?.classList.toggle("hidden");
-  });
-
-  closeNotifications?.addEventListener("click", () => {
-    notificationsPanel?.classList.add("hidden");
-  });
-
-  // Close panel when clicking outside
-  document.addEventListener("click", (e) => {
-    if (
-      !bellBtn?.contains(e.target) &&
-      !notificationsPanel?.contains(e.target)
-    ) {
-      notificationsPanel?.classList.add("hidden");
-    }
-  });
-
-  const showNotification = (title, message, type = "info", duration = 5000) => {
+  const showToastNotification = (title, message, type = "info", duration = 5000) => {
     const container = document.getElementById("notification-container");
-    const badge = document.getElementById("notification-badge");
     if (!container) return;
 
     const notification = document.createElement("div");
@@ -207,11 +68,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     container.appendChild(notification);
 
-    // Show the badge when a notification appears
-    if (badge) {
-      badge.classList.add("active");
-    }
-
     // Close button handler
     const closeBtn = notification.querySelector(".notification-close");
     const removeNotification = () => {
@@ -226,34 +82,188 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  // Function to hide the notification badge
-  const hideNotificationBadge = () => {
-    const badge = document.getElementById("notification-badge");
-    if (badge) {
-      badge.classList.remove("active");
-    }
-  };
-
   // Helper function to build ticket ID
   const buildTicketId = (id = "") => {
     if (!id) return "TKT";
     return `TKT-${id.slice(-6).toUpperCase()}`;
   };
 
+  // Helper to get relative time
+  const getRelativeTime = (timestamp) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return new Date(timestamp).toLocaleDateString();
+  };
+
   // ========================================
-  // POLLING FOR NOTIFICATIONS
+  // PERSISTENT NOTIFICATION STORAGE
   // ========================================
   const staffId = localStorage.getItem("userId");
   console.log("Staff ID:", staffId);
   
-  // Set to null on first check - will sync existing items without notifying
-  // After first check, will be set to current time and only show new items
-  let lastNotificationCheck = null;
-  let notifiedTickets = new Set();
-  let notifiedMessages = new Set();
+  const NOTIFICATIONS_KEY = `notifications:${staffId}`;
   
-  console.log('Notification tracking starting...');
+  let notifications = [];
+  let isFirstLoad = true;
 
+  // Load notifications from storage
+  const loadNotifications = async () => {
+    try {
+      const result = await window.storage.get(NOTIFICATIONS_KEY);
+      if (result && result.value) {
+        notifications = JSON.parse(result.value);
+        console.log('Loaded notifications:', notifications.length);
+      }
+    } catch (error) {
+      console.log('No notifications found or error loading:', error);
+      notifications = [];
+    }
+    return notifications;
+  };
+
+  // Save notifications to storage
+  const saveNotifications = async () => {
+    try {
+      await window.storage.set(NOTIFICATIONS_KEY, JSON.stringify(notifications));
+      console.log('Saved notifications:', notifications.length);
+    } catch (error) {
+      console.error('Error saving notifications:', error);
+    }
+  };
+
+  // Add a new notification
+  const addNotification = async (id, type, title, message, data = {}) => {
+    const notification = {
+      id,
+      type, // 'ticket' or 'message'
+      notificationType: data.notificationType || 'info', // 'info', 'success', 'error'
+      title,
+      message,
+      timestamp: Date.now(),
+      read: false,
+      data
+    };
+
+    // Check if notification already exists
+    const exists = notifications.some(n => n.id === id);
+    if (!exists) {
+      notifications.unshift(notification);
+      await saveNotifications();
+      updateNotificationUI();
+      
+      // Only show toast if not first load
+      if (!isFirstLoad) {
+        showToastNotification(title, message, notification.notificationType);
+      }
+      
+      return true;
+    }
+    return false;
+  };
+
+  // Mark notification as read
+  const markAsRead = async (id) => {
+    const notification = notifications.find(n => n.id === id);
+    if (notification && !notification.read) {
+      notification.read = true;
+      await saveNotifications();
+      updateNotificationUI();
+    }
+  };
+
+  // Mark all as read
+  const markAllAsRead = async () => {
+    notifications.forEach(n => n.read = true);
+    await saveNotifications();
+    updateNotificationUI();
+  };
+
+  // Delete notification
+  const deleteNotification = async (id) => {
+    notifications = notifications.filter(n => n.id !== id);
+    await saveNotifications();
+    updateNotificationUI();
+  };
+
+  // Update notification UI
+  const updateNotificationUI = () => {
+    const notificationsList = document.getElementById('notifications-list');
+    const bellBadge = document.getElementById('bell-badge');
+    
+    if (!notificationsList) return;
+
+    const unreadCount = notifications.filter(n => !n.read).length;
+    
+    // Update badge
+    if (bellBadge) {
+      if (unreadCount > 0) {
+        bellBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        bellBadge.classList.add('active');
+      } else {
+        bellBadge.textContent = '0';
+        bellBadge.classList.remove('active');
+      }
+    }
+
+    // Clear list
+    notificationsList.innerHTML = '';
+
+    if (notifications.length === 0) {
+      notificationsList.innerHTML = '<p class="empty-state">No notifications</p>';
+      return;
+    }
+
+    // Render notifications
+    notifications.forEach(notif => {
+      const item = document.createElement('div');
+      item.className = `notification-item ${notif.read ? 'read' : 'unread'} ${notif.notificationType}`;
+      
+      let icon = '📋';
+      if (notif.type === 'message') icon = '💬';
+      if (notif.notificationType === 'success') icon = '✅';
+      if (notif.notificationType === 'error') icon = '❌';
+
+      item.innerHTML = `
+        <div class="notification-item-icon">${icon}</div>
+        <div class="notification-item-content">
+          <div class="notification-item-title">${notif.title}</div>
+          <div class="notification-item-message">${notif.message}</div>
+          <div class="notification-item-time">${getRelativeTime(notif.timestamp)}</div>
+        </div>
+        <button class="notification-item-close" aria-label="Remove notification">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      `;
+
+      // Click to mark as read
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('.notification-item-close')) return;
+        markAsRead(notif.id);
+      });
+
+      // Delete button
+      const closeBtn = item.querySelector('.notification-item-close');
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteNotification(notif.id);
+      });
+
+      notificationsList.appendChild(item);
+    });
+  };
+
+  // ========================================
+  // POLLING FOR NEW TICKETS/MESSAGES
+  // ========================================
   const checkForNotifications = async () => {
     if (!staffId) return;
 
@@ -266,37 +276,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tickets = await ticketsResponse.json();
         console.log("Fetched tickets:", tickets.length);
         
-        tickets.forEach((ticket) => {
+        for (const ticket of tickets) {
           const ticketId = ticket._id || ticket.id;
+          const notificationId = `ticket-${ticketId}`;
+          const clientName = ticket.clientName || "A client";
           
-          // Use date, createdAt, or current time as fallback
-          const createdTime = new Date(ticket.createdAt || ticket.date || Date.now()).getTime();
-          
-          // On first check (lastNotificationCheck is null), just track the tickets
-          if (lastNotificationCheck === null) {
-            notifiedTickets.add(ticketId);
-            console.log(`📌 Syncing existing ticket on first check: ${ticketId}`);
-          } else {
-            console.log(`Checking ticket ${ticketId}:`, {
-              createdTime: new Date(createdTime).toISOString(),
-              lastCheck: new Date(lastNotificationCheck).toISOString(),
-              isNew: createdTime > lastNotificationCheck,
-              alreadyNotified: notifiedTickets.has(ticketId),
-            });
-            
-            // Check if this is a new ticket created after our last check
-            if (createdTime > lastNotificationCheck && !notifiedTickets.has(ticketId)) {
-              console.log("🔔 Showing notification for NEW ticket:", ticketId);
-              const clientName = ticket.clientName || "A client";
-              addNotificationToPanel(
-                "New Ticket Assigned",
-                `${clientName} submitted "${ticket.title}"`,
-                "info"
-              );
-              notifiedTickets.add(ticketId);
+          await addNotification(
+            notificationId,
+            'ticket',
+            "New Ticket Assigned",
+            `${clientName} submitted "${ticket.title}"`,
+            { 
+              notificationType: 'info',
+              ticketId,
+              clientName,
+              title: ticket.title
             }
-          }
-        });
+          );
+        }
       }
 
       // Check for new messages on assigned tickets
@@ -313,74 +310,56 @@ document.addEventListener("DOMContentLoaded", async () => {
               const messages = await messagesResponse.json();
               console.log(`Messages for ticket ${ticketId}:`, messages.length);
               
-              messages.forEach((message) => {
+              for (const message of messages) {
                 const messageId = message._id || message.id;
-                
-                // Use timestamp, createdAt, or current time as fallback
-                const createdTime = new Date(message.timestamp || message.createdAt || Date.now()).getTime();
+                const notificationId = `message-${messageId}`;
                 
                 // Check if sender is NOT the current staff (i.e., it's from client)
                 const isFromClient = message.senderId !== staffId;
                 
-                // On first check (lastNotificationCheck is null), just track the messages
-                if (lastNotificationCheck === null) {
-                  if (isFromClient) {
-                    notifiedMessages.add(messageId);
-                    console.log(`📌 Syncing existing message on first check: ${messageId}`);
-                  }
-                } else {
-                  console.log(`Checking message ${messageId}:`, {
-                    createdTime: new Date(createdTime).toISOString(),
-                    lastCheck: new Date(lastNotificationCheck).toISOString(),
-                    senderId: message.senderId,
-                    staffId: staffId,
-                    isFromClient: isFromClient,
-                    isNew: createdTime > lastNotificationCheck,
-                    alreadyNotified: notifiedMessages.has(messageId),
-                  });
+                if (isFromClient) {
+                  const senderName = message.senderName || "Client";
                   
-                  // Check if it's a recent message from client that we haven't notified about
-                  if (
-                    createdTime > lastNotificationCheck &&
-                    isFromClient &&
-                    !notifiedMessages.has(messageId)
-                  ) {
-                    console.log("🔔 Showing notification for NEW message:", messageId);
-                    const senderName = message.senderName || "Client";
-                    addNotificationToPanel(
-                      "New Reply",
-                      `${senderName} replied to ticket ${ticket.title || ticketId}`,
-                      "success"
-                    );
-                    notifiedMessages.add(messageId);
-                  }
+                  await addNotification(
+                    notificationId,
+                    'message',
+                    "New Reply",
+                    `${senderName} replied to ticket ${ticket.title || ticketId}`,
+                    {
+                      notificationType: 'success',
+                      ticketId,
+                      messageId,
+                      senderName
+                    }
+                  );
                 }
-              });
+              }
             }
           } catch (error) {
             console.error(`Error fetching messages for ticket ${ticketId}:`, error);
           }
         }
       }
-
-      // On first check, set the timestamp to now
-      if (lastNotificationCheck === null) {
-        console.log("✅ First notification check complete, starting to track new items");
-      }
-      lastNotificationCheck = Date.now();
-      console.log('Updated lastNotificationCheck to:', new Date(lastNotificationCheck).toISOString());
       
     } catch (error) {
       console.error("Error checking for notifications:", error);
     }
   };
 
-  // Check for notifications every 10 seconds
-  setInterval(checkForNotifications, 10000);
-
-  // Initial check (won't show notifications for existing items since lastCheck is current time)
+  // Initialize notification system
   if (staffId) {
-    checkForNotifications();
+    await loadNotifications();
+    updateNotificationUI();
+    await checkForNotifications();
+    
+    // Mark first load as complete after initial check
+    setTimeout(() => {
+      isFirstLoad = false;
+      console.log('First load complete - will now show toast notifications for new items');
+    }, 2000);
+    
+    // Check for notifications every 10 seconds
+    setInterval(checkForNotifications, 10000);
   }
 
   // ========================================
@@ -617,6 +596,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ========================================
   // EVENT LISTENERS
   // ========================================
+  // Bell button and notifications panel
+  const bellBtn = document.getElementById("bell-btn");
+  const notificationsPanel = document.getElementById("notifications-panel");
+  const closeNotificationsBtn = document.getElementById("close-notifications");
+
+  bellBtn?.addEventListener("click", () => {
+    notificationsPanel?.classList.toggle("hidden");
+  });
+
+  closeNotificationsBtn?.addEventListener("click", () => {
+    notificationsPanel?.classList.add("hidden");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!notificationsPanel || !bellBtn) return;
+    if (notificationsPanel.contains(e.target) || bellBtn.contains(e.target)) return;
+    notificationsPanel.classList.add("hidden");
+  });
+
   toggle?.addEventListener("click", () => {
     if (!menu) return;
     menu.classList.contains("hidden") ? openMenu() : closeMenu();
