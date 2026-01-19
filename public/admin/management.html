@@ -524,5 +524,97 @@
       </footer>
     </div>
   </div>
+
+  <!-- View Category Modal -->
+  <div class="modal-overlay hidden mgmt-modal" id="view-category-modal" role="dialog" aria-modal="true">
+    <div class="modal-card" role="document">
+      <header class="modal-header">
+        <h3 class="modal-title">Category Details</h3>
+        <button class="modal-close" id="view-category-close" aria-label="Close dialog">×</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Category Code</div>
+            <div class="modal-value" id="vc-code">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Category Name</div>
+            <div class="modal-value" id="vc-name">—</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Date Created</div>
+            <div class="modal-value" id="vc-date">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Staff Assigned</div>
+            <div class="modal-value" id="vc-staff">0</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Tickets Received</div>
+            <div class="modal-value" id="vc-tickets">0</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="modal-btn primary" id="view-category-close-btn">Close</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Edit Category Modal -->
+  <div class="modal-overlay hidden mgmt-modal" id="edit-category-modal" role="dialog" aria-modal="true">
+    <div class="modal-card" role="document">
+      <header class="modal-header">
+        <h3 class="modal-title">Edit Category</h3>
+        <button class="modal-close" id="edit-category-close" aria-label="Close dialog">×</button>
+      </header>
+
+
+      <div class="modal-body">
+        <div class="modal-summary">
+          <div>
+            <label class="modal-label" for="ec-code">Category Code</label>
+            <input id="ec-code" class="modal-input" type="text" placeholder="Enter category code">
+          </div>
+          <div>
+            <label class="modal-label" for="ec-name">Category Name</label>
+            <input id="ec-name" class="modal-input" type="text" placeholder="Enter category name">
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Date Created</div>
+            <div class="modal-value" id="ec-date">—</div>
+          </div>
+          <div>
+            <div class="modal-label">Staff Assigned</div>
+            <div class="modal-value" id="ec-staff">0</div>
+          </div>
+        </div>
+
+        <div class="modal-summary">
+          <div>
+            <div class="modal-label">Tickets Received</div>
+            <div class="modal-value" id="ec-tickets">0</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button class="modal-btn" id="edit-category-cancel">Cancel</button>
+        <button class="modal-btn primary" id="edit-category-save">Save Changes</button>
+      </footer>
+    </div>
+  </div>
 </body>
 </html>

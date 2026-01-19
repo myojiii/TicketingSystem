@@ -5,7 +5,9 @@ import { normalizeText } from "../lib/ticketHelpers.js";
 
 const getCategories = async (req, res) => {
   try {
-    const categories = await CategoryModel.find().lean();
+    const categories = await CategoryModel.find({
+      $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
+    }).lean();
 
     const normalized = categories.map((cat) => ({
       code: cat["category code"] || cat.categoryCode || "",
@@ -21,7 +23,9 @@ const getCategories = async (req, res) => {
 
 const getCategorySummaries = async (req, res) => {
   try {
-    const categories = await CategoryModel.find().lean();
+    const categories = await CategoryModel.find({
+      $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
+    }).lean();
 
     const staff = await UserModel.find({
       role: { $regex: /^staff$/i },
@@ -50,6 +54,7 @@ const getCategorySummaries = async (req, res) => {
 
     const payload = categories.map((cat) => {
       const catName = cat["category name"] || cat.categoryName || cat.name || "";
+      const catCode = cat["category code"] || cat.categoryCode || cat.code || "";
       const key = normalizeText(catName);
       const staffCount = cat.staffAssigned ?? staffMap[key] ?? 0;
       const ticketCount = cat.ticketsReceived ?? ticketMap[key] ?? 0;
@@ -60,6 +65,7 @@ const getCategorySummaries = async (req, res) => {
 
       return {
         id: cat._id?.toString() || "",
+        code: catCode,
         name: catName,
         date: createdAt,
         updatedAt: cat.updatedAt || createdAt || null,
@@ -118,4 +124,77 @@ const createCategory = async (req, res) => {
   }
 };
 
-export { getCategories, getCategorySummaries, createCategory };
+const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const now = new Date();
+
+    const doc = await CategoryModel.findOneAndUpdate(
+      { _id: id, $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }] },
+      { $set: { deletedAt: now } },
+      { new: true }
+    ).lean();
+
+    if (!doc) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    return res.json({ message: "Category deleted", deletedAt: now.toISOString() });
+  } catch (err) {
+    console.error("Error deleting category", err);
+    res.status(500).json({ message: "Failed to delete category" });
+  }
+};
+
+const updateCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { code, name } = req.body || {};
+
+    if (!code || !name) {
+      return res.status(400).json({ message: "Category code and name are required" });
+    }
+
+    const existing = await CategoryModel.findOne({
+      _id: { $ne: id },
+      $or: [{ "category code": code }, { "category name": name }],
+    }).lean();
+
+    if (existing?._id) {
+      return res.status(409).json({ message: "Category with this code or name already exists" });
+    }
+
+    const updated = await CategoryModel.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          "category code": code,
+          "category name": name,
+        },
+      },
+      { new: true }
+    ).lean();
+
+    if (!updated) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    return res.json({
+      message: "Category updated",
+      category: {
+        id: updated._id?.toString() || "",
+        code: updated["category code"] || "",
+        name: updated["category name"] || "",
+        date: updated.createdAt || null,
+        updatedAt: updated.updatedAt || null,
+        staffCount: updated.staffAssigned || 0,
+        tickets: updated.ticketsReceived || 0,
+      },
+    });
+  } catch (err) {
+    console.error("Error updating category", err);
+    res.status(500).json({ message: "Failed to update category" });
+  }
+};
+
+export { getCategories, getCategorySummaries, createCategory, updateCategory, deleteCategory };

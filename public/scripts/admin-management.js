@@ -59,6 +59,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const vsTickets = document.getElementById("vs-tickets");
   const vsNumber = document.getElementById("vs-number");
   const vsAddress = document.getElementById("vs-address");
+  const viewCategoryModal = document.getElementById("view-category-modal");
+  const viewCategoryClose = document.getElementById("view-category-close");
+  const viewCategoryCloseBtn = document.getElementById("view-category-close-btn");
+  const vcCode = document.getElementById("vc-code");
+  const vcName = document.getElementById("vc-name");
+  const vcDate = document.getElementById("vc-date");
+  const vcStaff = document.getElementById("vc-staff");
+  const vcTickets = document.getElementById("vc-tickets");
+  const editCategoryModal = document.getElementById("edit-category-modal");
+  const editCategoryClose = document.getElementById("edit-category-close");
+  const editCategoryCancel = document.getElementById("edit-category-cancel");
+  const editCategorySave = document.getElementById("edit-category-save");
+  const ecCode = document.getElementById("ec-code");
+  const ecName = document.getElementById("ec-name");
+  const ecDate = document.getElementById("ec-date");
+  const ecStaff = document.getElementById("ec-staff");
+  const ecTickets = document.getElementById("ec-tickets");
 
   let editingStaffId = null;
 
@@ -150,15 +167,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     tableBodyCategory.innerHTML = rows
       .map(
-        ({ name, date, staffCount, tickets }) => `
-          <tr>
+        ({ id, code, name, date, staffCount, tickets }) => `
+          <tr data-category-id="${id || ""}" data-category-code="${code || ""}">
             <td>${name || ""}</td>
             <td>${formatDate(date)}</td>
             <td class="center">${staffCount ?? 0}</td>
             <td class="center">${tickets ?? 0}</td>
             <td>
               <div class="action-icons">
-                <button class="icon-action-btn view-btn" title="View">👁</button>
+                <button class="icon-action-btn view-btn category-view-btn" title="View">👁</button>
                 <button class="icon-action-btn edit-btn" title="Update">✏️</button>
                 <button class="icon-action-btn delete-btn" title="Delete">🗑️</button>
               </div>
@@ -167,6 +184,9 @@ document.addEventListener("DOMContentLoaded", () => {
         `
       )
       .join("");
+    attachCategoryViewHandlers();
+    attachCategoryEditHandlers();
+    attachCategoryDeleteHandlers();
   };
 
   tabs.forEach((tab) => {
@@ -368,6 +388,49 @@ document.addEventListener("DOMContentLoaded", () => {
   viewStaffClose?.addEventListener("click", closeStaffModal);
   viewStaffCloseBtn?.addEventListener("click", closeStaffModal);
 
+  const openCategoryModal = (category) => {
+    if (!viewCategoryModal) return;
+    vcCode.textContent = category?.code || "—";
+    vcName.textContent = category?.name || "—";
+    vcDate.textContent = formatDate(category?.date);
+    vcStaff.textContent = category?.staffCount ?? 0;
+    vcTickets.textContent = category?.tickets ?? 0;
+    viewCategoryModal.classList.remove("hidden");
+  };
+
+  const closeCategoryModal = () => {
+    viewCategoryModal?.classList.add("hidden");
+  };
+
+  viewCategoryClose?.addEventListener("click", closeCategoryModal);
+  viewCategoryCloseBtn?.addEventListener("click", closeCategoryModal);
+
+  let editingCategoryId = null;
+
+  const openEditCategoryModal = (category) => {
+    if (!editCategoryModal) return;
+    editingCategoryId = category?.id || null;
+    ecCode.value = category?.code || "";
+    ecName.value = category?.name || "";
+    ecDate.textContent = formatDate(category?.date);
+    ecStaff.textContent = category?.staffCount ?? 0;
+    ecTickets.textContent = category?.tickets ?? 0;
+    editCategoryModal.classList.remove("hidden");
+  };
+
+  const closeEditCategoryModal = () => {
+    editCategoryModal?.classList.add("hidden");
+    editingCategoryId = null;
+    ecCode.value = "";
+    ecName.value = "";
+    ecDate.textContent = "—";
+    ecStaff.textContent = "0";
+    ecTickets.textContent = "0";
+  };
+
+  editCategoryClose?.addEventListener("click", closeEditCategoryModal);
+  editCategoryCancel?.addEventListener("click", closeEditCategoryModal);
+
   const attachStaffViewHandlers = () => {
     document.querySelectorAll(".staff-view-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -424,6 +487,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  const attachCategoryViewHandlers = () => {
+    document.querySelectorAll("#mgmt-table-body-category .category-view-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const tr = e.currentTarget.closest("tr");
+        const catId = tr?.dataset.categoryId;
+        if (!catId) return;
+        const category = data.category.find((c) => c.id === catId) || {};
+        openCategoryModal(category);
+      });
+    });
+  };
+
+  const attachCategoryEditHandlers = () => {
+    document.querySelectorAll("#mgmt-table-body-category .edit-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const tr = e.currentTarget.closest("tr");
+        const catId = tr?.dataset.categoryId;
+        if (!catId) return;
+        const category = data.category.find((c) => c.id === catId) || {};
+        openEditCategoryModal(category);
+      });
+    });
+  };
+
+  const attachCategoryDeleteHandlers = () => {
+    document.querySelectorAll("#mgmt-table-body-category .delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const tr = e.currentTarget.closest("tr");
+        const catId = tr?.dataset.categoryId;
+        if (!catId) return;
+        const category = data.category.find((c) => c.id === catId);
+        const name = category?.name || "this category";
+        const confirmed = window.confirm(`Delete ${name}? This action can't be undone.`);
+        if (!confirmed) return;
+
+        try {
+          const res = await fetch(`/api/management/categories/${encodeURIComponent(catId)}`, {
+            method: "DELETE",
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || "Failed to delete category");
+          }
+          await Promise.all([loadCategories(), loadDepartments()]);
+        } catch (err) {
+          console.error(err);
+          alert(err.message || "Failed to delete category");
+        }
+      });
+    });
+  };
+
   const attachStaffDeleteHandlers = () => {
     document.querySelectorAll("#mgmt-table-body-staff .delete-btn").forEach((btn) => {
       btn.addEventListener("click", async (e) => {
@@ -432,7 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!staffId) return;
         const staff = data.staff.find((s) => s.id === staffId);
         const name = staff?.name || "this staff";
-        const confirmed = window.confirm(`Delete ${name}? This action can't be undone.`);
+        const confirmed = window.confirm(`Delete ${name}? They will be hidden from the site but kept in the database.`);
         if (!confirmed) return;
 
         try {
@@ -551,6 +666,43 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error(err);
       alert(err.message || "Failed to update staff");
+    }
+  });
+
+  editCategorySave?.addEventListener("click", async () => {
+    if (!editingCategoryId) {
+      closeEditCategoryModal();
+      return;
+    }
+
+    const payload = {
+      code: ecCode.value.trim(),
+      name: ecName.value.trim(),
+    };
+
+    if (!payload.code || !payload.name) {
+      alert("Category code and name are required.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/management/categories/${encodeURIComponent(editingCategoryId)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to update category");
+      }
+
+      await loadCategories();
+      await loadDepartments();
+      closeEditCategoryModal();
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Failed to update category");
     }
   });
 
