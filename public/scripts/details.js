@@ -1,5 +1,14 @@
 document.addEventListener("DOMContentLoaded", async () => {
   // ========================================
+  // HIDE NOTIFICATION BADGE
+  // ========================================
+  // When staff opens a ticket, clear the notification badge
+  const badge = document.getElementById("notification-badge");
+  if (badge) {
+    badge.classList.remove("active");
+  }
+
+  // ========================================
   // SIDEBAR TOGGLE FUNCTIONALITY
   // ========================================
   const sidebar = document.querySelector('.sidebar');
