@@ -211,11 +211,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         </button>
       `;
 
-      // Click to mark as read
+      // Click to mark as read and navigate to ticket
       item.addEventListener('click', async (e) => {
         if (e.target.closest('.notification-item-close')) return;
         if (!notif.read) {
           await markAsRead(notif._id);
+        }
+        // Navigate to the ticket detail page
+        if (notif.ticketId) {
+          window.location.href = `/staff/details.html?ticketId=${notif.ticketId}`;
         }
       });
 
@@ -500,6 +504,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const bellBtn = document.getElementById("bell-btn");
   const notificationsPanel = document.getElementById("notifications-panel");
   const closeNotificationsBtn = document.getElementById("close-notifications");
+  const markAllReadBtn = document.getElementById("mark-all-read-btn");
 
   bellBtn?.addEventListener("click", () => {
     notificationsPanel?.classList.toggle("hidden");
@@ -507,6 +512,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   closeNotificationsBtn?.addEventListener("click", () => {
     notificationsPanel?.classList.add("hidden");
+  });
+
+  markAllReadBtn?.addEventListener("click", async () => {
+    if (staffId) {
+      try {
+        const response = await fetch(`/api/staff/${staffId}/notifications/read-all`, {
+          method: 'PATCH',
+        });
+        
+        if (response.ok) {
+          await loadNotifications();
+        }
+      } catch (error) {
+        console.error('Error marking all as read:', error);
+      }
+    }
   });
 
   document.addEventListener("click", (e) => {
