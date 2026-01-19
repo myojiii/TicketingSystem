@@ -1,6 +1,6 @@
 import NotificationModel from "../models/Notifications.js";
 
-// Get all notifications for a staff member
+// Get all notifications for a staff member or admin
 export const getNotifications = async (req, res) => {
   try {
     const { staffId } = req.params;

@@ -1,4 +1,53 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ========================================
+  // NOTIFICATION SYSTEM
+  // ========================================
+  function showNotification(title, message, type = 'success', duration = 3000) {
+    const container = document.getElementById('notification-container');
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const iconSvg = type === 'success' ? `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    ` : type === 'error' ? `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+    ` : `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    `;
+    
+    notification.innerHTML = `
+      <div class="notification-icon">${iconSvg}</div>
+      <div class="notification-content">
+        <div class="notification-title">${title}</div>
+        <div class="notification-message">${message}</div>
+      </div>
+      <button class="notification-close" onclick="this.parentElement.remove()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    `;
+    
+    container.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.animation = 'fadeOut 0.3s ease-out forwards';
+      setTimeout(() => notification.remove(), 300);
+    }, duration);
+  }
+
   const tabs = document.querySelectorAll(".mgmt-tab");
   const tableBodyUsers = document.getElementById("mgmt-table-body");
   const tableBodyStaff = document.getElementById("mgmt-table-body-staff");
@@ -311,6 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(err.message || "Failed to create category");
       }
 
+      showNotification('Success', `Category "${payload.name}" created successfully`, 'success');
       await loadCategories();
       closeAddCategoryModal();
     } catch (err) {
@@ -530,6 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const err = await res.json().catch(() => ({}));
             throw new Error(err.message || "Failed to delete category");
           }
+          showNotification('Success', `Category \"${name}\" deleted successfully`, 'success');
           await Promise.all([loadCategories(), loadDepartments()]);
         } catch (err) {
           console.error(err);
@@ -558,6 +609,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const err = await res.json().catch(() => ({}));
             throw new Error(err.message || "Failed to delete staff");
           }
+          showNotification('Success', `Staff member \"${name}\" deleted successfully`, 'success');
           await Promise.all([loadStaff(), loadCategories()]);
         } catch (err) {
           console.error(err);
@@ -623,6 +675,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(err.message || "Failed to create staff");
       }
 
+      showNotification('Success', `Staff member "${payload.name}" created successfully`, 'success');
       await loadStaff();
       closeAddStaffModal();
     } catch (err) {
@@ -661,6 +714,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(err.message || "Failed to update staff");
       }
 
+      showNotification('Success', 'Staff member updated successfully', 'success');
       await loadStaff();
       closeEditStaffModal();
     } catch (err) {
@@ -697,6 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(err.message || "Failed to update category");
       }
 
+      showNotification('Success', 'Category updated successfully', 'success');
       await loadCategories();
       await loadDepartments();
       closeEditCategoryModal();

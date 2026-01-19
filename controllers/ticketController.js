@@ -128,6 +128,24 @@ const createTicket = async (req, res) => {
       assignedDepartment: "",
     });
 
+    // Create notification for all admins
+    try {
+      const admins = await UserModel.find({ role: { $regex: /^admin$/i } }).lean();
+      for (const admin of admins) {
+        await NotificationModel.create({
+          staffId: admin._id.toString(),
+          type: "new_ticket",
+          title: "New Ticket Submitted",
+          message: `"${title}" submitted by client`,
+          ticketId: doc._id.toString(),
+          read: false,
+        });
+      }
+    } catch (notifErr) {
+      console.error("Error creating admin notification:", notifErr);
+      // Don't fail the request if notification creation fails
+    }
+
     res.status(201).json({ message: "Ticket created", ticket: doc });
   } catch (err) {
     console.error("Error creating ticket", err);

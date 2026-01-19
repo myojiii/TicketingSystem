@@ -1035,3 +1035,132 @@ body {
     height: calc(100vh - 140px);
   }
 }
+/* ========================================
+   NOTIFICATION SYSTEM
+   ======================================== */
+
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.notification {
+  min-width: 320px;
+  max-width: 420px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  pointer-events: all;
+  animation: slideIn 0.3s ease-out;
+  border-left: 4px solid #10b981;
+}
+
+.notification.success {
+  border-left-color: #10b981;
+}
+
+.notification.error {
+  border-left-color: #ef4444;
+}
+
+.notification.warning {
+  border-left-color: #f59e0b;
+}
+
+.notification.info {
+  border-left-color: #3b82f6;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.notification.success .notification-icon {
+  color: #10b981;
+}
+
+.notification.error .notification-icon {
+  color: #ef4444;
+}
+
+.notification.warning .notification-icon {
+  color: #f59e0b;
+}
+
+.notification.info .notification-icon {
+  color: #3b82f6;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.notification-message {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.notification-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.notification-close:hover {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(400px);
+  }
+}
