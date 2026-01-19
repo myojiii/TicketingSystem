@@ -648,6 +648,164 @@ body {
   color: #1f7a3f;
 }
 
+.status-badge.pending {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+/* ========================================
+   SHARED GHOST BUTTON
+   ======================================== */
+.ghost-btn {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #d8dfea;
+  background: #f7f9fd;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  font-size: 14px;
+}
+
+.ghost-btn:hover {
+  border-color: #cbd6ed;
+  background: #eef3ff;
+}
+
+.ghost-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ghost-btn.small {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+/* ========================================
+   MANAGEMENT PAGE
+   ======================================== */
+.management-area {
+  padding: 24px;
+  background: #f5f7fb;
+}
+
+.mgmt-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(17, 38, 146, 0.08);
+  padding: 18px 18px 14px;
+}
+
+.mgmt-tabs {
+  display: inline-flex;
+  gap: 8px;
+  margin-bottom: 0;
+  padding-left: 6px;
+}
+
+.mgmt-tab {
+  min-width: 120px;
+  height: 46px;
+  border-radius: 12px 12px 0 0;
+  border: 1px solid #e4e7ee;
+  border-bottom: none;
+  background: #f6f7fb;
+  color: #444;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 16px;
+}
+
+.mgmt-tab.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 -1px 0 #fff, 0 1px 0 #fff;
+}
+
+.mgmt-table-wrap {
+  border: 1px solid #e4e7ee;
+  border-radius: 0 16px 16px 16px;
+  overflow: hidden;
+  margin-top: -1px;
+}
+
+.mgmt-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mgmt-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 6px 0 10px;
+  gap: 8px;
+}
+
+#staff-actions .primary-btn {
+  height: 46px;
+  padding: 0 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+#category-actions .primary-btn {
+  height: 46px;
+  padding: 0 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mgmt-table thead {
+  background: #f9fafb;
+}
+
+.mgmt-table th {
+  text-align: left;
+  font-weight: 700;
+  font-size: 14px;
+  color: #374151;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e4e7ee;
+
+}
+
+.mgmt-table th:nth-child(4) {
+  text-align: center;
+}
+
+.mgmt-table[data-table="category"] th:nth-child(3) {
+  text-align: center;
+}
+
+.mgmt-table td {
+  padding: 14px 14px;
+  border-bottom: 1px solid #e4e7ee;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.mgmt-table td:nth-child(4) {
+  text-align: center;
+}
+
+.mgmt-table[data-table="category"] td:nth-child(3) {
+  text-align: center;
+}
+
+.mgmt-table tr:last-child td {
+  border-bottom: none;
+}
+
 /* ========================================
    MODAL STYLES
    ======================================== */
@@ -697,6 +855,32 @@ body {
   margin-top: 8px;
   color: var(--muted);
   font-size: 14px;
+}
+
+.modal-body {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-label {
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.modal-input {
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #d8dfea;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.modal-input:focus {
+  outline: 2px solid #cdd8ff;
 }
 
 .modal-body {

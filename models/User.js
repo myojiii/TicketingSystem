@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     department: String,
     number: String,
   },
-  { collection: "users" }
+  { collection: "users", timestamps: true }
 );
 
 export default mongoose.models.User || mongoose.model("users", userSchema);
