@@ -158,12 +158,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   const toggle = document.getElementById("toggle-convo");
   const convo = document.getElementById("conversation-card");
+  const closeBtn = document.getElementById("close-panel-btn");
 
   if (toggle && convo) {
     toggle.addEventListener("click", () => {
-      const isHidden = convo.classList.contains("hidden");
-      convo.classList.toggle("hidden", !isHidden);
-      toggle.textContent = isHidden ? "Hide Conversation" : "View Conversation";
+      convo.classList.add("active");
+      toggle.textContent = "Hide Conversation";
+    });
+  }
+
+  if (closeBtn && convo) {
+    closeBtn.addEventListener("click", () => {
+      convo.classList.remove("active");
+      toggle.textContent = "View Conversation";
     });
   }
 

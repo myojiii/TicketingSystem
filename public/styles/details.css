@@ -618,10 +618,99 @@ body {
 }
 
 .details .scroll-area {
-  padding: 28px 30px 34px;
-  max-width: 1220px;
+  padding: 28px 40px 34px;
+  max-width: 1500px;
   margin: 0 auto;
   width: 100%;
+}
+
+.details-wrapper {
+  display: flex;
+  position: relative;
+  height: 100%;
+}
+
+.details-wrapper .scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 30px 34px;
+}
+
+.conversation-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: #fff;
+  border-left: 1px solid #e3e8f1;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.conversation-panel.active {
+  right: 0;
+}
+
+.conversation-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid #e5e9f0;
+  flex-shrink: 0;
+}
+
+.conv-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.close-panel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text);
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.close-panel-btn:hover {
+  background: #f0f1f3;
+}
+
+.close-panel-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.conversation-panel .messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.conversation-panel .composer {
+  padding: 14px 18px;
+  border: none;
+  background: #fff;
+  border-top: 1px solid #e3e8f1;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .conversation-card {
@@ -637,13 +726,6 @@ body {
   padding: 2px 4px 10px;
   border-bottom: 1px solid #e5e9f0;
   margin-bottom: 12px;
-}
-
-.conv-title {
-  font-size: 20px;
-  color: var(--text-strong);
-  margin-top: 10px;
-  margin-bottom: 10px;
 }
 
 .messages {
@@ -755,7 +837,7 @@ body {
   background: #fff;
   border: 1px solid #e3e8f1;
   border-radius: 14px;
-  padding: 20px 20px 18px;
+  padding: 24px 24px 20px;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.02);
   margin-bottom: 26px;
 }
@@ -775,13 +857,13 @@ body {
 
 .hero-title {
   margin: 20px 0px 14px;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 100;
   color: var(--text-strong);
 }
 
 .hero-desc {
-  margin: 20px 0 22px;
+  margin: 20px 0 24px;
   color: #64748b;
   line-height: 1.6;
   font-size: 15px;
@@ -791,15 +873,15 @@ body {
   background: #fff;
   border: 1px solid #e3e8f1;
   border-radius: 14px;
-  padding: 20px 30px 18px;
+  padding: 24px 30px 22px;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.02);
   font-size: 14px;
 }
 
 .details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 18px;
 }
 
 .details-head {
@@ -834,7 +916,7 @@ body {
 }
 
 .head-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--text-strong);
 }
@@ -843,24 +925,23 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 8px 0;
+  padding: 10px 0;
 }
 
 .detail-label {
   font-size: 12px;
   color: #64748b;
-  font-size: 14px;
+  font-weight: 500;
 }
 
 .detail-value {
-  font-size: 16px;
+  font-size: 15px;
   color: #1f2d4a;
-  font-weight: 300;
+  font-weight: 350;
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  font-size: 16px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .inline-icon svg {
@@ -988,5 +1069,33 @@ body {
 
   .content {
     height: calc(100vh - 140px);
+  }
+
+  .conversation-panel {
+    width: 100%;
+    right: -100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .conversation-panel {
+    width: 100%;
+    right: -100%;
+  }
+
+  .details .scroll-area {
+    padding: 20px 16px 28px;
+  }
+
+  .conversation-panel-header {
+    padding: 14px 16px;
+  }
+
+  .conversation-panel .messages {
+    padding: 12px 16px;
+  }
+
+  .conversation-panel .composer {
+    padding: 12px 16px;
   }
 }
