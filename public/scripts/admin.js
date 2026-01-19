@@ -295,8 +295,8 @@ logoutBtn?.addEventListener('click', () => {
           document.getElementById('view-client-userid').textContent = ticket.userId || '-';
 
           const statusEl = document.getElementById('view-ticket-status');
-          statusEl.textContent = ticket.status || 'Pending';
-          statusEl.className = `status-badge ${getStatusClass(ticket.status)}`;
+          statusEl.textContent = ticket.status || '';
+          statusEl.className = `status-badge ${getStatusClass(ticket.status)}`
 
           const priorityEl = document.getElementById('view-ticket-priority');
           priorityEl.textContent = ticket.priority || 'Not Set';
@@ -378,7 +378,7 @@ logoutBtn?.addEventListener('click', () => {
               <td>${truncateText(t.description, 100)}</td>
               <td>${formatDate(t.date)}</td>
               <td>${t.category || 'Unassigned'}</td>
-              <td><span class="status-badge ${getStatusClass(t.status)}">${t.status || 'Pending'}</span></td>
+              <td><span class="status-badge ${getStatusClass(t.status)}">${t.status || ''}</span></td>
               <td>
                 <div class="action-icons">
                   <button class="icon-action-btn view-btn" title="View">👁</button>

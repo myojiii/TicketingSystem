@@ -169,7 +169,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const params = new URLSearchParams(window.location.search);
   const ticketId = params.get("ticketId");
-  if (!ticketId) return;
+  
+  const debugEl = document.getElementById("debug-info");
+  const updateDebug = (msg) => {
+    if (debugEl) debugEl.textContent = msg;
+    console.log(msg);
+  };
+  
+  updateDebug(`URL Parameters: ticketId=${ticketId}`);
+  
+  if (!ticketId) {
+    const heroTitleEl = document.querySelector(".hero-title");
+    if (heroTitleEl) {
+      heroTitleEl.textContent = "No ticket selected";
+    }
+    const heroDescEl = document.querySelector(".hero-desc");
+    if (heroDescEl) {
+      heroDescEl.textContent = "Please select a ticket from the list to view details.";
+    }
+    updateDebug("Error: No ticketId found in URL");
+    return;
+  }
 
   const heroIdEl = document.querySelector(".hero-id");
   const heroTitleEl = document.querySelector(".hero-title");
@@ -188,14 +208,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     return null;
   };
 
-  const assignedEl = findRowByLabel("assigned")?.querySelector(".detail-value");
-  const statusBox = findRowByLabel("status")?.querySelector(".select-box");
-  const priorityBox = findRowByLabel("priority")?.querySelector(".select-box");
-  const createdEl = findRowByLabel("created")?.querySelector(".detail-value");
-  const categoryEl = findRowByLabel("category")?.querySelector(".detail-value");
-  const contactNameEl = findRowByLabel("name")?.querySelector(".detail-value");
-  const contactEmailEl = findRowByLabel("email")?.querySelector(".detail-value");
-  const contactPhoneEl = findRowByLabel("phone")?.querySelector(".detail-value");
+  const assignedEl = document.getElementById("detail-assigned-staff");
+  const statusEl = document.getElementById("detail-status");
+  const statusBox = document.getElementById("detail-status-box");
+  const priorityEl = document.getElementById("detail-priority");
+  const priorityBox = document.getElementById("detail-priority-box");
+  const createdEl = document.getElementById("detail-created-date");
+  const categoryEl = document.getElementById("detail-category");
+  const contactNameEl = document.getElementById("detail-client-name");
+  const contactEmailEl = document.getElementById("detail-client-email");
+  const contactPhoneEl = document.getElementById("detail-client-phone");
 
   let currentTicket = null;
 
@@ -266,13 +288,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (assignedEl) {
       assignedEl.textContent = ticket.assignedStaffName || "Unassigned";
     }
-    if (statusBox) {
-      const span = statusBox.querySelector("span");
-      if (span) span.textContent = statusText;
+    if (statusEl) {
+      statusEl.textContent = statusText;
     }
-    if (priorityBox) {
-      const span = priorityBox.querySelector("span");
-      if (span) span.textContent = priorityText;
+    if (priorityEl) {
+      priorityEl.textContent = priorityText;
     }
     if (createdEl) {
       createdEl.textContent = formatDate(ticket.date);
@@ -284,14 +304,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const fetchTicket = async () => {
     try {
+      updateDebug(`Fetching: /api/tickets/${ticketId}`);
       const res = await fetch(`/api/tickets/${ticketId}`);
-      if (!res.ok) throw new Error("Failed to load ticket");
+      updateDebug(`Response: ${res.status} ${res.statusText}`);
+      console.log('Response status:', res.status);
+      
+      if (!res.ok) {
+        throw new Error(`Failed to load ticket: ${res.status} ${res.statusText}`);
+      }
+      
       const data = await res.json();
+      updateDebug(`Ticket received: ${data?.title || 'Unknown'}`);
+      console.log('Ticket data received:', data);
+      
+      if (!data || !data.id) {
+        throw new Error("Invalid ticket data received");
+      }
+      
       renderTicket(data);
       if (data?.userId) await fetchUser(data.userId);
     } catch (err) {
-      console.error(err);
-      alert("Unable to load ticket details.");
+      console.error('Error fetching ticket:', err);
+      updateDebug(`Error: ${err.message}`);
+      const heroTitleEl = document.querySelector(".hero-title");
+      if (heroTitleEl) {
+        heroTitleEl.textContent = "Error loading ticket";
+      }
+      const heroDescEl = document.querySelector(".hero-desc");
+      if (heroDescEl) {
+        heroDescEl.textContent = "Could not load ticket details: " + err.message;
+      }
     }
   };
 
@@ -403,6 +445,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 0);
   };
 
+  // Status and Priority Dropdowns
   if (statusBox) {
     statusBox.style.cursor = "pointer";
     statusBox.addEventListener("click", () => {
@@ -556,7 +599,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Load messages on page load and poll every 5 seconds
-  await renderMessages();
-  setInterval(renderMessages, 5000);
+  // Load messages on page load and poll every 5 seconds (only if ticketId exists)
+  if (ticketId) {
+    await renderMessages();
+    setInterval(renderMessages, 5000);
+  }
 });

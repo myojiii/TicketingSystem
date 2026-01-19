@@ -95,6 +95,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!ticketsSection) return;
     clearTicketCards();
 
+    console.log('Rendering tickets:', tickets);
+
     if (!Array.isArray(tickets) || tickets.length === 0) {
       const empty = document.createElement("article");
       empty.className = "ticket-card";
@@ -116,6 +118,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     tickets.forEach((ticket) => {
       const article = document.createElement("article");
       article.className = "ticket-card";
+
+      console.log('Processing ticket:', { id: ticket.id, title: ticket.title });
 
       const statusText = ticket.status || "Pending";
       const priorityText = ticket.priority || "Not Set";
@@ -233,14 +237,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   const loadStaffTickets = async () => {
     const staffId = localStorage.getItem("userId");
     if (!staffId) {
-      renderTickets([]);
+      console.warn("No userId found in localStorage");
+      const article = document.createElement("article");
+      article.className = "ticket-card";
+      article.innerHTML = `
+        <div class="ticket-info">
+          <div class="ticket-row">
+            <div class="ticket-id">Not Logged In</div>
+          </div>
+          <h3 class="ticket-title">Please log in to view your tickets</h3>
+          <div class="ticket-meta">
+            <span class="meta-text">Redirecting to login...</span>
+          </div>
+        </div>
+      `;
+      ticketsSection.innerHTML = '';
+      ticketsSection.appendChild(article);
+      setTimeout(() => window.location.href = '/', 2000);
       return;
     }
 
     try {
+      console.log('Loading tickets for staff:', staffId);
       const res = await fetch(`/api/staff/${staffId}/tickets`);
+      console.log('Response status:', res.status);
       if (!res.ok) throw new Error("Failed to fetch staff tickets");
       const data = await res.json();
+      console.log('Tickets received:', data);
       ticketsCache = Array.isArray(data) ? data : [];
       applyFilters();
     } catch (err) {
