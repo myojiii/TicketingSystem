@@ -444,6 +444,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Mark all notifications for a specific ticket as read
+  const markTicketNotificationsAsRead = async (ticketIdToMark) => {
+    if (!ticketIdToMark) return;
+
+    try {
+      // Find all unread notifications for this ticket
+      const unreadNotificationsForTicket = notifications.filter(n => 
+        n.ticketId === ticketIdToMark && !n.read
+      );
+
+      // Mark each one as read
+      for (const notif of unreadNotificationsForTicket) {
+        try {
+          const response = await fetch(`/api/notifications/${notif._id}/read`, {
+            method: 'PATCH',
+          });
+          
+          if (response.ok) {
+            // Update local notifications array
+            notif.read = true;
+          }
+        } catch (error) {
+          console.error('Error marking notification as read:', error);
+        }
+      }
+
+      // Reload notifications to update UI
+      if (unreadNotificationsForTicket.length > 0) {
+        await loadNotifications();
+      }
+    } catch (error) {
+      console.error('Error marking ticket notifications as read:', error);
+    }
+  };
+
   const params = new URLSearchParams(window.location.search);
   const ticketId = params.get("ticketId");
   
@@ -466,6 +501,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     updateDebug("Error: No ticketId found in URL");
     return;
+  }
+
+  // Mark notifications for this ticket as read when details page loads
+  if (staffId && ticketId) {
+    await loadNotifications();
+    // Give a moment for notifications to load, then mark ticket's notifications as read
+    setTimeout(() => markTicketNotificationsAsRead(ticketId), 100);
   }
 
   const heroIdEl = document.querySelector(".hero-id");
