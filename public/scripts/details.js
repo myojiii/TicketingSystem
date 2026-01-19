@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Render notifications
-    notifications.forEach(notif => {
+    notifications.forEach((notif, index) => {
       const item = document.createElement('div');
       item.className = `notification-item ${notif.read ? 'read' : 'unread'}`;
       
@@ -190,6 +190,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (notif.type === 'ticket_assigned') icon = '📋';
       if (notif.type === 'status_changed') icon = '🔄';
       if (notif.type === 'priority_changed') icon = '⚠️';
+
+      // Check if this is a recently created notification (within last minute)
+      const createdTime = new Date(notif.createdAt).getTime();
+      const now = Date.now();
+      const isNew = (now - createdTime) < 60000; // Less than 1 minute old
+      if (isNew && !notif.read) {
+        item.classList.add('new-notification');
+      }
       
       const iconSvg = `<div class="notification-item-icon">${icon}</div>`;
       

@@ -173,6 +173,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
+    // Re-render tickets to update notification badges
+    applyFilters();
+
     // Clear list
     notificationsList.innerHTML = '';
 
@@ -182,7 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Render notifications
-    notifications.forEach(notif => {
+    notifications.forEach((notif, index) => {
       const item = document.createElement('div');
       item.className = `notification-item ${notif.read ? 'read' : 'unread'}`;
       
@@ -198,6 +201,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (notif.type === 'ticket_assigned') icon = '📋';
       if (notif.type === 'status_changed') icon = '🔄';
       if (notif.type === 'priority_changed') icon = '⚠️';
+
+      // Check if this is a recently created notification (within last minute)
+      const createdTime = new Date(notif.createdAt).getTime();
+      const now = Date.now();
+      const isNew = (now - createdTime) < 60000; // Less than 1 minute old
+      if (isNew && !notif.read) {
+        item.classList.add('new-notification');
+      }
 
       item.innerHTML = `
         <div class="notification-item-icon">${icon}</div>
@@ -358,10 +369,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       const greenBg = "#d8f5e3";
       const greenText = "#1f7a3f";
 
+      // Check if this ticket has unread notifications
+      const unreadNotifications = notifications.filter(n => 
+        n.ticketId === ticket.id && !n.read
+      );
+      const hasUnread = unreadNotifications.length > 0;
+
       article.innerHTML = `
         <div class="ticket-info">
           <div class="ticket-row">
             <div class="ticket-id">${buildTicketId(ticket.id)}</div>
+            ${hasUnread ? '<span class="ticket-notification-badge" title="New notifications"></span>' : ''}
             <div class="pill ${statusClass}" style="${statusGreen ? `background:${greenBg};color:${greenText};` : ""}">${statusText}</div>
             ${priorityText ? `<div class="pill ${priorityClass || ""}" style="${priorityGreen ? `background:${greenBg};color:${greenText};` : ""}">${priorityText}</div>` : ""}
           </div>
@@ -388,7 +406,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const selectedPriority = (label?.textContent || "All Priorities").trim();
     const selectedStatus = (statusLabel?.textContent || "All Statuses").trim();
 
-    const filtered = ticketsCache.filter((ticket) => {
+    let filtered = ticketsCache.filter((ticket) => {
       const priorityPass =
         selectedPriority === "All Priorities" ||
         normalize(ticket.priority) === normalize(selectedPriority);
@@ -396,6 +414,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         selectedStatus === "All Statuses" ||
         normalize(ticket.status) === normalize(selectedStatus);
       return priorityPass && statusPass;
+    });
+
+    // Sort tickets: those with unread notifications go to the top
+    filtered.sort((a, b) => {
+      const aHasUnread = notifications.some(n => n.ticketId === a.id && !n.read);
+      const bHasUnread = notifications.some(n => n.ticketId === b.id && !n.read);
+      
+      if (aHasUnread && !bHasUnread) return -1;
+      if (!aHasUnread && bHasUnread) return 1;
+      return 0;
     });
 
     renderTickets(filtered);
