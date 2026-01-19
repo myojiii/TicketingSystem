@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const layout = document.querySelector('.layout');
   const toggleBtn = document.getElementById('sidebar-toggle');
   
-  // Load saved state from in-memory storage
   let sidebarCollapsed = false;
   
   if (sidebarCollapsed) {
@@ -14,7 +13,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     layout.classList.add('sidebar-collapsed');
   }
   
-  // Toggle sidebar on button click
   toggleBtn?.addEventListener('click', () => {
     sidebar.classList.toggle('collapsed');
     layout.classList.toggle('sidebar-collapsed');
@@ -30,13 +28,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const confirmLogout = confirm('Are you sure you want to logout?');
     
     if (confirmLogout) {
-      // Redirect to login
       window.location.href = '/';
     }
   });
 
   // ========================================
-  // NOTIFICATION SYSTEM
+  // TOAST NOTIFICATION SYSTEM
   // ========================================
   const showToastNotification = (title, message, type = "info", duration = 5000) => {
     const container = document.getElementById("notification-container");
@@ -45,7 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const notification = document.createElement("div");
     notification.className = `notification ${type}`;
 
-    // Icon based on type
     let iconSvg = "";
     if (type === "success") {
       iconSvg = '<svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
@@ -68,7 +64,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     container.appendChild(notification);
 
-    // Close button handler
     const closeBtn = notification.querySelector(".notification-close");
     const removeNotification = () => {
       notification.classList.add("removing");
@@ -76,7 +71,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
     closeBtn?.addEventListener("click", removeNotification);
 
-    // Auto-remove after duration
     if (duration > 0) {
       setTimeout(removeNotification, duration);
     }
@@ -91,7 +85,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Helper to get relative time
   const getRelativeTime = (timestamp) => {
     const now = Date.now();
-    const diff = now - timestamp;
+    const date = new Date(timestamp);
+    const diff = now - date.getTime();
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -101,108 +96,72 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
-    return new Date(timestamp).toLocaleDateString();
+    return date.toLocaleDateString();
   };
 
   // ========================================
-  // PERSISTENT NOTIFICATION STORAGE
+  // BACKEND-DRIVEN NOTIFICATION SYSTEM
   // ========================================
   const staffId = localStorage.getItem("userId");
   console.log("Staff ID:", staffId);
   
-  const NOTIFICATIONS_KEY = `notifications:${staffId}`;
-  
   let notifications = [];
-  let isFirstLoad = true;
+  let lastCheckTimestamp = Date.now();
 
-  // Load notifications from storage
+  // Load all notifications from backend
   const loadNotifications = async () => {
+    if (!staffId) return;
+
     try {
-      const result = await window.storage.get(NOTIFICATIONS_KEY);
-      if (result && result.value) {
-        notifications = JSON.parse(result.value);
-        console.log('Loaded notifications:', notifications.length);
+      const response = await fetch(`/api/staff/${staffId}/notifications`);
+      if (response.ok) {
+        const data = await response.json();
+        notifications = data.notifications || [];
+        updateNotificationUI(data.unreadCount || 0);
+        console.log('Loaded notifications:', notifications.length, 'Unread:', data.unreadCount);
       }
     } catch (error) {
-      console.log('No notifications found or error loading:', error);
-      notifications = [];
+      console.error('Error loading notifications:', error);
     }
-    return notifications;
   };
 
-  // Save notifications to storage
-  const saveNotifications = async () => {
+  // Check for new notifications since last check
+  const checkForNewNotifications = async () => {
+    if (!staffId) return;
+
     try {
-      await window.storage.set(NOTIFICATIONS_KEY, JSON.stringify(notifications));
-      console.log('Saved notifications:', notifications.length);
-    } catch (error) {
-      console.error('Error saving notifications:', error);
-    }
-  };
-
-  // Add a new notification
-  const addNotification = async (id, type, title, message, data = {}) => {
-    const notification = {
-      id,
-      type, // 'ticket' or 'message'
-      notificationType: data.notificationType || 'info', // 'info', 'success', 'error'
-      title,
-      message,
-      timestamp: Date.now(),
-      read: false,
-      data
-    };
-
-    // Check if notification already exists
-    const exists = notifications.some(n => n.id === id);
-    if (!exists) {
-      notifications.unshift(notification);
-      await saveNotifications();
-      updateNotificationUI();
-      
-      // Only show toast if not first load
-      if (!isFirstLoad) {
-        showToastNotification(title, message, notification.notificationType);
+      const response = await fetch(`/api/staff/${staffId}/notifications/new?since=${lastCheckTimestamp}`);
+      if (response.ok) {
+        const data = await response.json();
+        const newNotifications = data.notifications || [];
+        
+        if (newNotifications.length > 0) {
+          console.log('Found new notifications:', newNotifications.length);
+          
+          // Show toast for each new notification
+          newNotifications.forEach(notif => {
+            const type = notif.type === 'new_message' ? 'success' : 'info';
+            showToastNotification(notif.title, notif.message, type);
+          });
+          
+          // Reload all notifications to update the list
+          await loadNotifications();
+        }
+        
+        lastCheckTimestamp = Date.now();
       }
-      
-      return true;
+    } catch (error) {
+      console.error('Error checking for new notifications:', error);
     }
-    return false;
-  };
-
-  // Mark notification as read
-  const markAsRead = async (id) => {
-    const notification = notifications.find(n => n.id === id);
-    if (notification && !notification.read) {
-      notification.read = true;
-      await saveNotifications();
-      updateNotificationUI();
-    }
-  };
-
-  // Mark all as read
-  const markAllAsRead = async () => {
-    notifications.forEach(n => n.read = true);
-    await saveNotifications();
-    updateNotificationUI();
-  };
-
-  // Delete notification
-  const deleteNotification = async (id) => {
-    notifications = notifications.filter(n => n.id !== id);
-    await saveNotifications();
-    updateNotificationUI();
   };
 
   // Update notification UI
-  const updateNotificationUI = () => {
+  const updateNotificationUI = (unreadCount) => {
     const notificationsList = document.getElementById('notifications-list');
     const bellBadge = document.getElementById('bell-badge');
     
     if (!notificationsList) return;
 
-    const unreadCount = notifications.filter(n => !n.read).length;
-    
     // Update badge
     if (bellBadge) {
       if (unreadCount > 0) {
@@ -225,19 +184,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Render notifications
     notifications.forEach(notif => {
       const item = document.createElement('div');
-      item.className = `notification-item ${notif.read ? 'read' : 'unread'} ${notif.notificationType}`;
+      item.className = `notification-item ${notif.read ? 'read' : 'unread'}`;
+      
+      // Determine notification style based on type
+      if (notif.type === 'new_message') {
+        item.classList.add('success');
+      } else if (notif.type === 'ticket_assigned') {
+        item.classList.add('info');
+      }
       
       let icon = '📋';
-      if (notif.type === 'message') icon = '💬';
-      if (notif.notificationType === 'success') icon = '✅';
-      if (notif.notificationType === 'error') icon = '❌';
+      if (notif.type === 'new_message') icon = '💬';
+      if (notif.type === 'ticket_assigned') icon = '📋';
+      if (notif.type === 'status_changed') icon = '🔄';
+      if (notif.type === 'priority_changed') icon = '⚠️';
 
       item.innerHTML = `
         <div class="notification-item-icon">${icon}</div>
         <div class="notification-item-content">
           <div class="notification-item-title">${notif.title}</div>
           <div class="notification-item-message">${notif.message}</div>
-          <div class="notification-item-time">${getRelativeTime(notif.timestamp)}</div>
+          <div class="notification-item-time">${getRelativeTime(notif.createdAt)}</div>
         </div>
         <button class="notification-item-close" aria-label="Remove notification">
           <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
@@ -245,121 +212,62 @@ document.addEventListener("DOMContentLoaded", async () => {
       `;
 
       // Click to mark as read
-      item.addEventListener('click', (e) => {
+      item.addEventListener('click', async (e) => {
         if (e.target.closest('.notification-item-close')) return;
-        markAsRead(notif.id);
+        if (!notif.read) {
+          await markAsRead(notif._id);
+        }
       });
 
       // Delete button
       const closeBtn = item.querySelector('.notification-item-close');
-      closeBtn.addEventListener('click', (e) => {
+      closeBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        deleteNotification(notif.id);
+        await deleteNotification(notif._id);
       });
 
       notificationsList.appendChild(item);
     });
   };
 
-  // ========================================
-  // POLLING FOR NEW TICKETS/MESSAGES
-  // ========================================
-  const checkForNotifications = async () => {
-    if (!staffId) return;
-
+  // Mark notification as read
+  const markAsRead = async (notificationId) => {
     try {
-      console.log('Checking for notifications at:', new Date().toISOString());
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PATCH',
+      });
       
-      // Check for new tickets assigned to this staff member
-      const ticketsResponse = await fetch(`/api/staff/${staffId}/tickets`);
-      if (ticketsResponse.ok) {
-        const tickets = await ticketsResponse.json();
-        console.log("Fetched tickets:", tickets.length);
-        
-        for (const ticket of tickets) {
-          const ticketId = ticket._id || ticket.id;
-          const notificationId = `ticket-${ticketId}`;
-          const clientName = ticket.clientName || "A client";
-          
-          await addNotification(
-            notificationId,
-            'ticket',
-            "New Ticket Assigned",
-            `${clientName} submitted "${ticket.title}"`,
-            { 
-              notificationType: 'info',
-              ticketId,
-              clientName,
-              title: ticket.title
-            }
-          );
-        }
+      if (response.ok) {
+        // Reload notifications
+        await loadNotifications();
       }
-
-      // Check for new messages on assigned tickets
-      const ticketsResponse2 = await fetch(`/api/staff/${staffId}/tickets`);
-      if (ticketsResponse2.ok) {
-        const tickets = await ticketsResponse2.json();
-        
-        // Check messages for each ticket
-        for (const ticket of tickets) {
-          const ticketId = ticket._id || ticket.id;
-          try {
-            const messagesResponse = await fetch(`/api/tickets/${ticketId}/messages`);
-            if (messagesResponse.ok) {
-              const messages = await messagesResponse.json();
-              console.log(`Messages for ticket ${ticketId}:`, messages.length);
-              
-              for (const message of messages) {
-                const messageId = message._id || message.id;
-                const notificationId = `message-${messageId}`;
-                
-                // Check if sender is NOT the current staff (i.e., it's from client)
-                const isFromClient = message.senderId !== staffId;
-                
-                if (isFromClient) {
-                  const senderName = message.senderName || "Client";
-                  
-                  await addNotification(
-                    notificationId,
-                    'message',
-                    "New Reply",
-                    `${senderName} replied to ticket ${ticket.title || ticketId}`,
-                    {
-                      notificationType: 'success',
-                      ticketId,
-                      messageId,
-                      senderName
-                    }
-                  );
-                }
-              }
-            }
-          } catch (error) {
-            console.error(`Error fetching messages for ticket ${ticketId}:`, error);
-          }
-        }
-      }
-      
     } catch (error) {
-      console.error("Error checking for notifications:", error);
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  // Delete notification
+  const deleteNotification = async (notificationId) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        // Reload notifications
+        await loadNotifications();
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
     }
   };
 
   // Initialize notification system
   if (staffId) {
     await loadNotifications();
-    updateNotificationUI();
-    await checkForNotifications();
     
-    // Mark first load as complete after initial check
-    setTimeout(() => {
-      isFirstLoad = false;
-      console.log('First load complete - will now show toast notifications for new items');
-    }, 2000);
-    
-    // Check for notifications every 10 seconds
-    setInterval(checkForNotifications, 10000);
+    // Check for new notifications every 10 seconds
+    setInterval(checkForNewNotifications, 10000);
   }
 
   // ========================================
@@ -415,8 +323,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!ticketsSection) return;
     clearTicketCards();
 
-    console.log('Rendering tickets:', tickets);
-
     if (!Array.isArray(tickets) || tickets.length === 0) {
       const empty = document.createElement("article");
       empty.className = "ticket-card";
@@ -438,8 +344,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     tickets.forEach((ticket) => {
       const article = document.createElement("article");
       article.className = "ticket-card";
-
-      console.log('Processing ticket:', { id: ticket.id, title: ticket.title });
 
       const statusText = ticket.status || "Pending";
       const priorityText = ticket.priority || "Not Set";
@@ -578,12 +482,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-      console.log('Loading tickets for staff:', staffId);
       const res = await fetch(`/api/staff/${staffId}/tickets`);
-      console.log('Response status:', res.status);
       if (!res.ok) throw new Error("Failed to fetch staff tickets");
       const data = await res.json();
-      console.log('Tickets received:', data);
       ticketsCache = Array.isArray(data) ? data : [];
       applyFilters();
     } catch (err) {
@@ -596,7 +497,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ========================================
   // EVENT LISTENERS
   // ========================================
-  // Bell button and notifications panel
   const bellBtn = document.getElementById("bell-btn");
   const notificationsPanel = document.getElementById("notifications-panel");
   const closeNotificationsBtn = document.getElementById("close-notifications");

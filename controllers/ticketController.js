@@ -1,6 +1,7 @@
 import TicketModel from "../models/Ticket.js";
 import MessageModel from "../models/Message.js";
 import UserModel from "../models/User.js";
+import NotificationModel from "../models/Notifications.js";
 import {
   normalizeTicket,
   assignTicketToDepartmentStaff,
@@ -150,6 +151,24 @@ const updateCategory = async (req, res) => {
     }
 
     const assignment = await assignTicketToDepartmentStaff(ticket, category);
+    
+    // Create notification if ticket was assigned
+    if (assignment?.assigned && assignment?.staff) {
+      try {
+        await NotificationModel.create({
+          staffId: assignment.staff.id,
+          type: "ticket_assigned",
+          title: "New Ticket Assigned",
+          message: `${ticket["ticket title"] || "New ticket"} assigned to you`,
+          ticketId: ticket._id.toString(),
+          read: false,
+        });
+      } catch (notifErr) {
+        console.error("Error creating notification:", notifErr);
+        // Don't fail the request if notification creation fails
+      }
+    }
+    
     const message = assignment.assigned
       ? "Category updated and staff assigned"
       : assignment.message || "Category updated successfully";
@@ -183,6 +202,23 @@ const updateTicket = async (req, res) => {
     let assignment = null;
     if (category !== undefined) {
       assignment = await assignTicketToDepartmentStaff(ticket, category);
+      
+      // Create notification if ticket was assigned
+      if (assignment?.assigned && assignment?.staff) {
+        try {
+          await NotificationModel.create({
+            staffId: assignment.staff.id,
+            type: "ticket_assigned",
+            title: "New Ticket Assigned",
+            message: `${ticket["ticket title"] || "New ticket"} assigned to you`,
+            ticketId: ticket._id.toString(),
+            read: false,
+          });
+        } catch (notifErr) {
+          console.error("Error creating notification:", notifErr);
+          // Don't fail the request if notification creation fails
+        }
+      }
     } else {
       await ticket.save();
     }

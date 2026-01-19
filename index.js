@@ -2,13 +2,14 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
-
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import categoryRoutes from "./routes/categories.js";
 import ticketRoutes from "./routes/tickets.js";
 import messageRoutes from "./routes/messages.js";
 import { ensureAssignedTicketsOpen } from "./lib/ticketHelpers.js";
+import notificationRoutes from "./routes/notifications.js";
+
 
 const app = express();
 dotenv.config();
@@ -16,7 +17,6 @@ dotenv.config();
 const PORT = process.env.PORT || 7000;
 const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/Ticketing";
 const rootDir = process.cwd();
-
 app.use(express.json());
 app.use(express.static(path.join(rootDir, "public")));
 app.use("/staff", express.static(path.join(rootDir, "public", "staff")));
@@ -42,6 +42,7 @@ app.use(userRoutes);
 app.use(categoryRoutes);
 app.use(ticketRoutes);
 app.use(messageRoutes);
+app.use(notificationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

@@ -51,6 +51,238 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // ========================================
+  // NOTIFICATION SYSTEM
+  // ========================================
+  const staffId = localStorage.getItem('userId');
+  let notifications = [];
+  let lastCheckTimestamp = Date.now();
+
+  // Toast notification helper
+  const showToastNotification = (title, message, type = "info", duration = 5000) => {
+    const container = document.getElementById("notification-container");
+    if (!container) return;
+
+    const notification = document.createElement("div");
+    notification.className = `notification ${type}`;
+
+    let iconSvg = "";
+    if (type === "success") {
+      iconSvg = '<svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
+    } else if (type === "error") {
+      iconSvg = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>';
+    } else {
+      iconSvg = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>';
+    }
+
+    notification.innerHTML = `
+      <div class="notification-icon">${iconSvg}</div>
+      <div class="notification-content">
+        <div class="notification-title">${title}</div>
+        <p class="notification-message">${message}</p>
+      </div>
+      <button class="notification-close" aria-label="Close notification">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    `;
+
+    container.appendChild(notification);
+
+    const closeBtn = notification.querySelector(".notification-close");
+    const removeNotification = () => {
+      notification.classList.add("removing");
+      setTimeout(() => notification.remove(), 300);
+    };
+    closeBtn?.addEventListener("click", removeNotification);
+
+    if (duration > 0) {
+      setTimeout(removeNotification, duration);
+    }
+  };
+
+  // Load all notifications from backend
+  const loadNotifications = async () => {
+    if (!staffId) return;
+
+    try {
+      const response = await fetch(`/api/staff/${staffId}/notifications`);
+      if (response.ok) {
+        const data = await response.json();
+        notifications = data.notifications || [];
+        updateNotificationUI(data.unreadCount || 0);
+        console.log('Loaded notifications:', notifications.length, 'Unread:', data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
+
+  // Check for new notifications since last check
+  const checkForNewNotifications = async () => {
+    if (!staffId) return;
+
+    try {
+      const response = await fetch(`/api/staff/${staffId}/notifications/new?since=${lastCheckTimestamp}`);
+      if (response.ok) {
+        const data = await response.json();
+        const newNotifications = data.notifications || [];
+        
+        if (newNotifications.length > 0) {
+          console.log('Found new notifications:', newNotifications.length);
+          
+          // Show toast for each new notification
+          newNotifications.forEach(notif => {
+            const type = notif.type === 'new_message' ? 'success' : 'info';
+            showToastNotification(notif.title, notif.message, type);
+          });
+          
+          // Reload all notifications to update the list
+          await loadNotifications();
+        }
+        
+        lastCheckTimestamp = Date.now();
+      }
+    } catch (error) {
+      console.error('Error checking for new notifications:', error);
+    }
+  };
+
+  // Update notification UI
+  const updateNotificationUI = (unreadCount) => {
+    const notificationsList = document.getElementById('notifications-list');
+    const bellBadge = document.getElementById('bell-badge');
+    
+    if (!notificationsList) return;
+
+    // Update badge
+    if (bellBadge) {
+      if (unreadCount > 0) {
+        bellBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        bellBadge.classList.add('active');
+      } else {
+        bellBadge.textContent = '0';
+        bellBadge.classList.remove('active');
+      }
+    }
+
+    // Clear list
+    notificationsList.innerHTML = '';
+
+    if (notifications.length === 0) {
+      notificationsList.innerHTML = '<p class="empty-state">No notifications</p>';
+      return;
+    }
+
+    // Render notifications
+    notifications.forEach(notif => {
+      const item = document.createElement('div');
+      item.className = `notification-item ${notif.read ? 'read' : 'unread'}`;
+      
+      // Determine notification style based on type
+      if (notif.type === 'new_message') {
+        item.classList.add('success');
+      } else if (notif.type === 'ticket_assigned') {
+        item.classList.add('info');
+      }
+      
+      let icon = '📋';
+      if (notif.type === 'new_message') icon = '💬';
+      if (notif.type === 'ticket_assigned') icon = '📋';
+      if (notif.type === 'status_changed') icon = '🔄';
+      if (notif.type === 'priority_changed') icon = '⚠️';
+      
+      const iconSvg = `<div class="notification-item-icon">${icon}</div>`;
+      
+      item.innerHTML = `
+        ${iconSvg}
+        <div class="notification-item-content">
+          <div class="notification-item-title">${notif.title}</div>
+          <div class="notification-item-message">${notif.message}</div>
+          <div class="notification-item-time">${new Date(notif.createdAt).toLocaleDateString()}</div>
+        </div>
+        <button class="notification-item-close" aria-label="Remove notification">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      `;
+
+      // Click to mark as read
+      item.addEventListener('click', async (e) => {
+        if (e.target.closest('.notification-item-close')) return;
+        if (!notif.read) {
+          await markAsRead(notif._id);
+        }
+      });
+
+      // Delete button
+      const closeBtn = item.querySelector('.notification-item-close');
+      closeBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await deleteNotification(notif._id);
+      });
+
+      notificationsList.appendChild(item);
+    });
+  };
+
+  // Mark notification as read
+  const markAsRead = async (notificationId) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PATCH',
+      });
+      
+      if (response.ok) {
+        // Reload notifications
+        await loadNotifications();
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  // Delete notification
+  const deleteNotification = async (notificationId) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        // Reload notifications
+        await loadNotifications();
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  // Initialize notification system
+  if (staffId) {
+    await loadNotifications();
+    
+    // Check for new notifications every 10 seconds
+    setInterval(checkForNewNotifications, 10000);
+  }
+
+  // Bell button and notifications panel
+  const bellBtn = document.getElementById("bell-btn");
+  const notificationsPanel = document.getElementById("notifications-panel");
+  const closeNotificationsBtn = document.getElementById("close-notifications");
+
+  bellBtn?.addEventListener("click", () => {
+    notificationsPanel?.classList.toggle("hidden");
+  });
+
+  closeNotificationsBtn?.addEventListener("click", () => {
+    notificationsPanel?.classList.add("hidden");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!notificationsPanel || !bellBtn) return;
+    if (notificationsPanel.contains(e.target) || bellBtn.contains(e.target)) return;
+    notificationsPanel.classList.add("hidden");
+  });
+
 
 
   // ========================================
