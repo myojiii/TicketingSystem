@@ -9,7 +9,7 @@ import ticketRoutes from "./routes/tickets.js";
 import messageRoutes from "./routes/messages.js";
 import { ensureAssignedTicketsOpen } from "./lib/ticketHelpers.js";
 import notificationRoutes from "./routes/notifications.js";
-
+import reportRoutes from "./routes/reports.js";
 
 const app = express();
 dotenv.config();
@@ -43,7 +43,7 @@ app.use(categoryRoutes);
 app.use(ticketRoutes);
 app.use(messageRoutes);
 app.use(notificationRoutes);
-
+app.use(reportRoutes);
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
