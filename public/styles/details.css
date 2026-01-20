@@ -3,17 +3,17 @@
 :root {
   --bg: #f5f7fb;
   --panel: #ffffff;
-  --text-strong: #1f2d4a;
+  --text-strong: #3F4040;
   --text: #3c4866;
   --muted: #7b8296;
-  --primary: #4a3bff;
-  --primary-hover: #3f34e0;
+  --primary: #FBB019;
+  --primary-hover: #EE4036;
   --border: #e3e7ef;
-  --shadow: 0 10px 30px rgba(17, 38, 146, 0.08);
+  --shadow: 0 10px 30px rgba(251, 176, 25, 0.08);
   --pill-yellow: #fceacf;
-  --pill-yellow-text: #c48921;
+  --pill-yellow-text: #FBB019;
   --pill-red: #ffe0e5;
-  --pill-red-text: #d4576b;
+  --pill-red-text: #EE4036;
   --pill-blue: #e5efff;
   --pill-blue-text: #3f7dfd;
   --pill-orange: #ffe7d6;
@@ -685,7 +685,8 @@ body {
 }
 
 .close-panel-btn:hover {
-  background: #f0f1f3;
+  background: var(--primary-hover);
+  color: #fff;
 }
 
 .close-panel-btn svg {
@@ -816,6 +817,10 @@ body {
   cursor: pointer;
 }
 
+.attach-btn:hover {
+  color: var(--primary);
+}
+
 .attach-btn svg {
   width: 16px;
   height: 16px;
@@ -827,10 +832,14 @@ body {
   min-width: 96px;
   border-radius: 10px;
   border: none;
-  background: #6765f2;
+  background: #FBB019;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
+}
+
+.send-btn:hover {
+  background: #EE4036;
 }
 
 .hero-card {
@@ -1016,11 +1025,14 @@ body {
   min-width: 148px;
   border-radius: 10px;
   font-size: 14px;
-  background: #6765f2;
+  background: var(--primary);
   color: #fff;
   border: none;
   cursor: pointer;
   font-weight: 600;
+}
+.details .primary-btn:hover {
+  background: var(--primary-hover);
 }
 
 /* ========================================

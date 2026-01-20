@@ -149,13 +149,13 @@
 }
 
 .modal-btn.primary {
-  background: #6366f1;
+  background: #FBB019;
   color: white;
-  border-color: #6366f1;
+  border-color: #FBB019;
 }
 
 .modal-btn.primary:hover {
-  background: #4f46e5;
+  background: #EE4036;
 }
 
 .modal-btn.danger {

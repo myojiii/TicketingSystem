@@ -3,17 +3,17 @@
 :root {
   --bg: #f5f7fb;
   --panel: #ffffff;
-  --text-strong: #1f2d4a;
+  --text-strong: #3F4040;
   --text: #3c4866;
   --muted: #7b8296;
-  --primary: #4a3bff;
-  --primary-hover: #3f34e0;
+  --primary: #FBB019;
+  --primary-hover: #EE4036;
   --border: #e3e7ef;
-  --shadow: 0 10px 30px rgba(17, 38, 146, 0.08);
+  --shadow: 0 10px 30px rgba(251, 176, 25, 0.08);
   --pill-yellow: #fceacf;
-  --pill-yellow-text: #c48921;
+  --pill-yellow-text: #FBB019;
   --pill-red: #ffe0e5;
-  --pill-red-text: #d4576b;
+  --pill-red-text: #EE4036;
   --pill-blue: #e5efff;
   --pill-blue-text: #3f7dfd;
   --pill-orange: #ffe7d6;
@@ -570,12 +570,12 @@ body {
 .primary-btn {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(74, 59, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(251, 176, 25, 0.2);
 }
 
 .primary-btn:hover {
   background: var(--primary-hover);
-  box-shadow: 0 6px 16px rgba(74, 59, 255, 0.3);
+  box-shadow: 0 6px 16px rgba(251, 176, 25, 0.3);
 }
 
 .primary-btn:active {
@@ -716,20 +716,20 @@ body {
 .mgmt-title {
   font-size: 18px;
   font-weight: 800;
-  color: #1f2d4a;
+  color: #3F4040;
 }
 
 .mgmt-subtitle {
   font-size: 13px;
-  color: #6b7280;
+  color: #7b8296;
   font-weight: 600;
 }
 
 .mgmt-pill {
   padding: 8px 14px;
   border-radius: 999px;
-  background: #eef2ff;
-  color: #4a3bff;
+  background: rgba(251, 176, 25, 0.08);
+  color: #FBB019;
   font-weight: 700;
   font-size: 13px;
 }
@@ -756,10 +756,10 @@ body {
 }
 
 .mgmt-tab.active {
-  background: #5142ff;
+  background: #EE4036;
   color: #ffffff;
-  box-shadow: 0 6px 14px rgba(17, 38, 146, 0.08);
-  border-color: #d6dbef;
+  box-shadow: 0 6px 14px rgba(251, 176, 25, 0.08);
+  border-color: var(--primary);
 }
 
 .mgmt-table-wrap {
