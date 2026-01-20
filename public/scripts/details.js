@@ -432,8 +432,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (toggle && convo) {
     toggle.addEventListener("click", () => {
-      convo.classList.add("active");
-      toggle.textContent = "Hide Conversation";
+      if (convo.classList.contains("active")) {
+        convo.classList.remove("active");
+        toggle.textContent = "View Conversation";
+      } else {
+        convo.classList.add("active");
+        toggle.textContent = "Hide Conversation";
+      }
     });
   }
 
