@@ -568,13 +568,12 @@ body {
 }
 
 .primary-btn {
-  background: var(--primary);
+  background: var(--primary-hover);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(251, 176, 25, 0.2);
 }
 
 .primary-btn:hover {
-  background: var(--primary-hover);
+  background: var(--primary);
   box-shadow: 0 6px 16px rgba(251, 176, 25, 0.3);
 }
 
@@ -673,7 +672,8 @@ body {
 
 .ghost-btn:hover {
   border-color: #cbd6ed;
-  background: #eef3ff;
+  color: #fff;
+  background: #ffb019;
 }
 
 .ghost-btn svg {
@@ -753,6 +753,11 @@ body {
   cursor: pointer;
   padding: 0 16px;
   transition: all 0.15s ease;
+}
+
+.mgmt-tab:hover{
+  background: #ffb019;
+  color: #fff;
 }
 
 .mgmt-tab.active {

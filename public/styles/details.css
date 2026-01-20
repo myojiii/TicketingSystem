@@ -832,14 +832,14 @@ body {
   min-width: 96px;
   border-radius: 10px;
   border: none;
-  background: #FBB019;
+  background: #EE4036;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
 }
 
 .send-btn:hover {
-  background: #EE4036;
+  background: #FBB019;
 }
 
 .hero-card {
@@ -1025,14 +1025,14 @@ body {
   min-width: 148px;
   border-radius: 10px;
   font-size: 14px;
-  background: var(--primary);
+  background: #EE4036;
   color: #fff;
   border: none;
   cursor: pointer;
   font-weight: 600;
 }
 .details .primary-btn:hover {
-  background: var(--primary-hover);
+  background: var(--primary);
 }
 
 /* ========================================

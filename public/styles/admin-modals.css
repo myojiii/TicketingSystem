@@ -67,7 +67,8 @@
 }
 
 .modal-close:hover {
-  background: #f3f4f6;
+  background: #EE4036;
+  color: #fff;
 }
 
 .modal-sub {
@@ -145,17 +146,18 @@
 }
 
 .modal-btn:hover {
-  background: #f9fafb;
+  background: #FBB019;
+  color: #fff;
 }
 
 .modal-btn.primary {
-  background: #FBB019;
+  background: #EE4036;
   color: white;
-  border-color: #FBB019;
+  border-color: #EE4036;
 }
 
 .modal-btn.primary:hover {
-  background: #EE4036;
+  background: #FBB019;
 }
 
 .modal-btn.danger {
