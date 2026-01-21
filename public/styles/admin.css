@@ -201,13 +201,13 @@ body {
 }
 
 .nav-btn.active {
-  background: var(--primary);
+  background: var(--primary-hover);
   color: #fff;
   box-shadow: 0 4px 12px rgba(74, 59, 255, 0.25);
 }
 
 .nav-btn.active:hover {
-  background: var(--primary-hover);
+  background: var(--primary);
 }
 
 .sidebar.collapsed .nav-btn {

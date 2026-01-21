@@ -241,18 +241,14 @@ notifications.forEach((notif, index) => {
   item.innerHTML = `
     ${iconSvg}
     <div class="notification-item-content">
-          <div class="notification-item-title">${notif.title}</div>
-          <div class="notification-item-message">${notif.message}</div>
-          <div class="notification-item-time">${getRelativeTime(notif.createdAt)}</div>
-        </div>
-        <button class="notification-item-close" aria-label="Remove notification">
-          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-        </button>
-      `;
+      <div class="notification-item-title">${notif.title}</div>
+      <div class="notification-item-message">${notif.message}</div>
+      <div class="notification-item-time">${getRelativeTime(notif.createdAt)}</div>
+    </div>
+  `;
 
       // Click to mark as read and navigate to ticket
       item.addEventListener('click', async (e) => {
-        if (e.target.closest('.notification-item-close')) return;
         if (!notif.read) {
           await markAsRead(notif._id);
         }
@@ -261,13 +257,6 @@ notifications.forEach((notif, index) => {
           // For admin, reload tickets to show the new one
           await loadTickets();
         }
-      });
-
-      // Delete button
-      const closeBtn = item.querySelector('.notification-item-close');
-      closeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        await deleteNotification(notif._id);
       });
 
       notificationsList.appendChild(item);
@@ -921,15 +910,10 @@ notifications.forEach((notif, index) => {
   // ========================================
   const bellBtn = document.getElementById("bell-btn");
   const notificationsPanel = document.getElementById("notifications-panel");
-  const closeNotificationsBtn = document.getElementById("close-notifications");
   const markAllReadBtn = document.getElementById("mark-all-read-btn");
 
   bellBtn?.addEventListener("click", () => {
     notificationsPanel?.classList.toggle("hidden");
-  });
-
-  closeNotificationsBtn?.addEventListener("click", () => {
-    notificationsPanel?.classList.add("hidden");
   });
 
   markAllReadBtn?.addEventListener("click", async () => {
