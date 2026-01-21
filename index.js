@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 import authRoutes from "./routes/auth.js";
@@ -10,6 +9,7 @@ import messageRoutes from "./routes/messages.js";
 import { ensureAssignedTicketsOpen } from "./lib/ticketHelpers.js";
 import notificationRoutes from "./routes/notifications.js";
 import reportRoutes from "./routes/reports.js";
+import connectMongo from "./lib/db.js";
 
 const app = express();
 dotenv.config();
@@ -27,8 +27,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(rootDir, "public", "auth", "login.html"));
 });
 
-mongoose
-  .connect(MONGO_URL)
+connectMongo(MONGO_URL)
   .then(async () => {
     console.log("MongoDB connected");
     await ensureAssignedTicketsOpen();
@@ -44,6 +43,13 @@ app.use(ticketRoutes);
 app.use(messageRoutes);
 app.use(notificationRoutes);
 app.use(reportRoutes);
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+} else {
+  console.log("Vercel serverless mode - not calling listen()");
+}
+
+export default app;
