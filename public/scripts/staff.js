@@ -173,9 +173,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
 
-    // Re-render tickets to update notification badges
-    applyFilters();
-
     // Clear list
     notificationsList.innerHTML = '';
 
@@ -202,27 +199,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (notif.type === 'status_changed') icon = '🔄';
       if (notif.type === 'priority_changed') icon = '⚠️';
 
-      // Check if this is a recently created notification (within last minute)
-      const createdTime = new Date(notif.createdAt).getTime();
-      const now = Date.now();
-      const isNew = (now - createdTime) < 60000; // Less than 1 minute old
-      if (isNew && !notif.read) {
-        item.classList.add('new-notification');
-      }
+// Check if this is a recently created notification (within last minute)
+const createdTime = new Date(notif.createdAt).getTime();
+const now = Date.now();
+const isNew = (now - createdTime) < 60000; // Less than 1 minute old
+if (isNew && !notif.read) {
+  item.classList.add('new-notification');
+}
 
-      item.innerHTML = `
-        <div class="notification-item-icon">${icon}</div>
-        <div class="notification-item-content">
-          <div class="notification-item-title">${notif.title}</div>
-          <div class="notification-item-message">${notif.message}</div>
-          <div class="notification-item-time">${getRelativeTime(notif.createdAt)}</div>
-        </div>
-        <button class="notification-item-close" aria-label="Remove notification">
-          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-        </button>
-      `;
+const iconSvg = `<div class="notification-item-icon">${icon}</div>`;  // ✅ ADD THIS LINE
 
-      // Click to mark as read and navigate to ticket
+item.innerHTML = `
+  ${iconSvg}
+  <div class="notification-item-content">
+    <div class="notification-item-title">${notif.title}</div>
+    <div class="notification-item-message">${notif.message}</div>
+    <div class="notification-item-time">${getRelativeTime(notif.createdAt)}</div>
+  </div>
+  <button class="notification-item-close" aria-label="Remove notification">
+    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+  </button>
+`;      // Click to mark as read and navigate to ticket
       item.addEventListener('click', async (e) => {
         if (e.target.closest('.notification-item-close')) return;
         if (!notif.read) {

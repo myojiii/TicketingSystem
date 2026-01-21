@@ -96,13 +96,29 @@
           <div class="topbar-title">Reports Dashboard</div>
           <div class="topbar-sub">Analytics and insights for ticket management</div>
         </div>
-        <div class="topbar-actions">
+                <div class="topbar-actions">
           <button class="bell-btn" id="bell-btn" aria-label="Notifications">
             <svg viewBox="0 0 24 24">
               <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.93 6 11v5l-2 2v1h16v-1l-2-2z"/>
             </svg>
             <span class="bell-badge" id="bell-badge">0</span>
           </button>
+          <div class="notifications-panel hidden" id="notifications-panel">
+            <div class="notifications-header">
+              <h3>Notifications</h3>
+              <div class="notifications-header-actions">
+                <button class="mark-all-read-btn" id="mark-all-read-btn" aria-label="Mark all as read">
+                  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                </button>
+                <button class="close-notifications" id="close-notifications" aria-label="Close">
+                  <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="notifications-list" id="notifications-list">
+              <p class="empty-state">No notifications</p>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -347,5 +363,6 @@
   <div class="notification-container" id="notification-container"></div>
 
   <script src="/scripts/reports.js"></script>
+  <script src="/scripts/admin.js"></script>
 </body>
 </html>

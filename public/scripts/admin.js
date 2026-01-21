@@ -210,34 +210,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Render notifications
-    notifications.forEach((notif, index) => {
-      const item = document.createElement('div');
-      item.className = `notification-item ${notif.read ? 'read' : 'unread'}`;
+// Render notifications
+notifications.forEach((notif, index) => {
+  const item = document.createElement('div');
+  item.className = `notification-item ${notif.read ? 'read' : 'unread'}`;
+  
+  // Determine notification style based on type
+  if (notif.type === 'new_ticket') {
+    item.classList.add('success');
+  } else if (notif.type === 'ticket_assigned') {
+    item.classList.add('info');
+  }
+  
+  let icon = '📋';
+  if (notif.type === 'new_ticket') icon = '🎫';
+  if (notif.type === 'ticket_assigned') icon = '📋';
+  if (notif.type === 'status_changed') icon = '🔄';
+  if (notif.type === 'priority_changed') icon = '⚠️';
 
-      // Determine notification style based on type
-      if (notif.type === 'new_ticket') {
-        item.classList.add('success');
-      } else if (notif.type === 'ticket_assigned') {
-        item.classList.add('info');
-      }
+  // Check if this is a recently created notification (within last minute)
+  const createdTime = new Date(notif.createdAt).getTime();
+  const now = Date.now();
+  const isNew = (now - createdTime) < 60000; // Less than 1 minute old
+  if (isNew && !notif.read) {
+    item.classList.add('new-notification');
+  }
+  
+  const iconSvg = `<div class="notification-item-icon">${icon}</div>`;
 
-      let icon = '📋';
-      if (notif.type === 'new_ticket') icon = '🎫';
-      if (notif.type === 'ticket_assigned') icon = '📋';
-      if (notif.type === 'status_changed') icon = '🔄';
-      if (notif.type === 'priority_changed') icon = '⚠️';
-
-      // Check if this is a recently created notification (within last minute)
-      const createdTime = new Date(notif.createdAt).getTime();
-      const now = Date.now();
-      const isNew = (now - createdTime) < 60000; // Less than 1 minute old
-      if (isNew && !notif.read) {
-        item.classList.add('new-notification');
-      }
-
-      item.innerHTML = `
-        <div class="notification-item-icon">${icon}</div>
-        <div class="notification-item-content">
+  item.innerHTML = `
+    ${iconSvg}
+    <div class="notification-item-content">
           <div class="notification-item-title">${notif.title}</div>
           <div class="notification-item-message">${notif.message}</div>
           <div class="notification-item-time">${getRelativeTime(notif.createdAt)}</div>
