@@ -12,7 +12,6 @@ let currentFilters = {
   startDate: "",
   endDate: "",
   department: "all",
-  category: "all",
   priority: "all",
   staffId: "all",
 };
@@ -54,20 +53,14 @@ async function loadFilterOptions() {
 
     // Populate department filter
     const departmentSelect = document.getElementById("filter-department");
-    data.departments.forEach((dept) => {
+    const allDepartments = Array.from(
+      new Set([...(data.departments || []), ...(data.categories || [])])
+    ).filter(Boolean);
+    allDepartments.forEach((dept) => {
       const option = document.createElement("option");
       option.value = dept;
       option.textContent = dept;
       departmentSelect.appendChild(option);
-    });
-
-    // Populate category filter
-    const categorySelect = document.getElementById("filter-category");
-    data.categories.forEach((cat) => {
-      const option = document.createElement("option");
-      option.value = cat;
-      option.textContent = cat;
-      categorySelect.appendChild(option);
     });
 
     // Populate staff filter
@@ -138,7 +131,6 @@ function applyFilters() {
   currentFilters.startDate = document.getElementById("start-date").value;
   currentFilters.endDate = document.getElementById("end-date").value;
   currentFilters.department = document.getElementById("filter-department").value;
-  currentFilters.category = document.getElementById("filter-category").value;
   currentFilters.priority = document.getElementById("filter-priority").value;
   currentFilters.staffId = document.getElementById("filter-staff").value;
 
@@ -155,7 +147,6 @@ function resetFilters() {
   document.getElementById("start-date").value = "";
   document.getElementById("end-date").value = "";
   document.getElementById("filter-department").value = "all";
-  document.getElementById("filter-category").value = "all";
   document.getElementById("filter-priority").value = "all";
   document.getElementById("filter-staff").value = "all";
 
@@ -163,7 +154,6 @@ function resetFilters() {
     startDate: "",
     endDate: "",
     department: "all",
-    category: "all",
     priority: "all",
     staffId: "all",
   };

@@ -504,28 +504,38 @@ const convertToCSV = (data) => {
 // Get filter options (departments, categories, staff)
 const getFilterOptions = async (req, res) => {
   try {
-    // Get all departments
-    const departments = await UserModel.distinct("department", {
+    const departmentsFromUsers = await UserModel.distinct("department", {
       department: { $exists: true, $ne: "" },
-      deletedAt: { $exists: false },
+      $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
     });
 
-    // Get all categories
-    const categories = await CategoryModel.find({ deletedAt: { $exists: false } })
+    const categoriesDocs = await CategoryModel.find({
+      $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
+    })
       .select("category name")
       .lean();
+
+    const categoryNames = categoriesDocs
+      .map((c) => c["category name"] || c.categoryName || c.name)
+      .filter(Boolean);
+
+    const ticketCategories = await TicketModel.distinct("category name", {
+      "category name": { $exists: true, $ne: "" },
+    });
+
+    const departments = Array.from(new Set([...categoryNames, ...departmentsFromUsers])).filter(Boolean);
 
     // Get all staff members
     const staff = await UserModel.find({
       role: { $regex: /^staff$/i },
-      deletedAt: { $exists: false },
+      $or: [{ deletedAt: { $exists: false } }, { deletedAt: null }],
     })
       .select("_id name department")
       .lean();
 
     res.json({
-      departments: departments.filter(Boolean),
-      categories: categories.map((c) => c["category name"]),
+      departments: Array.from(new Set([...departments, ...ticketCategories])).filter(Boolean),
+      categories: categoryNames,
       staff: staff.map((s) => ({
         id: s._id,
         name: s.name,
