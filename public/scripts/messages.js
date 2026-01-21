@@ -148,14 +148,18 @@
 
       const ticket = await res.json();
       state.currentStaffId = ticket.assignedStaffId || null;
+      state.currentTicketId = ticket.id || ticketId;
 
       if (chatTitle) chatTitle.textContent = ticket.title || "Untitled";
       if (chatId) chatId.textContent = `Ticket #${ticket.id}`;
 
       chatModal.classList.add("active");
 
-      // Mark ticket as opened with current timestamp
+      // Mark ticket as opened with current timestamp and clear notifications for this ticket
       markTicketAsOpened(ticketId);
+      fetch(`/api/notifications/ticket/${encodeURIComponent(ticketId)}/read`, {
+        method: "PATCH",
+      }).catch(() => {});
 
       await loadMessages(ticketId);
 

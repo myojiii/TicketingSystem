@@ -12,6 +12,8 @@ const ticketSchema = new mongoose.Schema(
     assignedStaffId: String,
     assignedStaffName: String,
     assignedDepartment: String,
+    hasAgentReply: { type: Boolean, default: false },
+    hasClientViewed: { type: Boolean, default: false },
   },
   { collection: "tickets" }
 );

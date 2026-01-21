@@ -454,31 +454,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!ticketIdToMark) return;
 
     try {
-      // Find all unread notifications for this ticket
-      const unreadNotificationsForTicket = notifications.filter(n => 
-        n.ticketId === ticketIdToMark && !n.read
-      );
-
-      // Mark each one as read
-      for (const notif of unreadNotificationsForTicket) {
-        try {
-          const response = await fetch(`/api/notifications/${notif._id}/read`, {
-            method: 'PATCH',
-          });
-          
-          if (response.ok) {
-            // Update local notifications array
-            notif.read = true;
-          }
-        } catch (error) {
-          console.error('Error marking notification as read:', error);
-        }
-      }
-
-      // Reload notifications to update UI
-      if (unreadNotificationsForTicket.length > 0) {
-        await loadNotifications();
-      }
+      await fetch(`/api/notifications/ticket/${encodeURIComponent(ticketIdToMark)}/read`, {
+        method: "PATCH",
+      }).catch(() => {});
+      await loadNotifications();
     } catch (error) {
       console.error('Error marking ticket notifications as read:', error);
     }
@@ -509,7 +488,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Mark notifications for this ticket as read when details page loads
-  if (staffId && ticketId) {
+  if (ticketId) {
     await loadNotifications();
     // Give a moment for notifications to load, then mark ticket's notifications as read
     setTimeout(() => markTicketNotificationsAsRead(ticketId), 100);

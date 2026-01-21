@@ -1,6 +1,7 @@
 import TicketModel from "../models/Ticket.js";
 import CategoryModel from "../models/Category.js";
 import UserModel from "../models/User.js";
+import NotificationModel from "../models/Notifications.js";
 
 // Helper function to parse date filters
 const parseDateFilter = (startDate, endDate) => {

@@ -103,25 +103,15 @@
         return;
       }
 
-      const ticketOpenedTimes = getTicketOpenedTimes();
-
       container.innerHTML = tickets
         .map((ticket) => {
           const ticketId = String(ticket.id);
 
-          // Check if staff has sent a message and if client has viewed it
-          const hasAgentReply = ticket.hasAgentReply || false;
-          const hasClientViewed = ticket.hasAgentView || false;
-
           // Show badge if staff sent a message AND client hasn't viewed it yet
+          const hasAgentReply = ticket.hasAgentReply || false;
+          const hasClientViewed = !!ticket.hasClientViewed;
           const showBadge = hasAgentReply && !hasClientViewed;
 
-          console.log(`Badge check for ticket #${ticketId}:`, {
-            hasAgentReply,
-            hasClientViewed,
-            showBadge,
-            ticketData: ticket,
-          });
           const statusClass = ticket.status
             ? ticket.status.toLowerCase().replace(/\s+/g, "-")
             : "pending";

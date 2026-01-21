@@ -32,24 +32,34 @@ const postMessage = async (req, res) => {
       timestamp: new Date(),
     });
 
-    // Get ticket to find assigned staff
     const ticket = await TicketModel.findById(ticketId);
-    
-    // If message is from client (not staff) and ticket has assigned staff, create notification
-    if (ticket && ticket.assignedStaffId && senderId !== ticket.assignedStaffId) {
-      try {
-        await NotificationModel.create({
-          staffId: ticket.assignedStaffId,
-          type: "new_message",
-          title: "New Reply",
-          message: `${senderName || "Client"} replied to ${ticket["ticket title"] || "ticket"}`,
-          ticketId: ticketId,
-          messageId: newMessage._id.toString(),
-          read: false,
-        });
-      } catch (notifErr) {
-        console.error("Error creating notification:", notifErr);
-        // Don't fail the request if notification creation fails
+
+    if (ticket && ticket.assignedStaffId) {
+      const isStaffSender = senderId === ticket.assignedStaffId;
+      const isClientSender = senderId === ticket.userId;
+
+      if (isClientSender) {
+        // Notify assigned staff about client reply
+        try {
+          await NotificationModel.create({
+            staffId: ticket.assignedStaffId,
+            type: "new_message",
+            title: "New Reply",
+            message: `${senderName || "Client"} replied to ${ticket["ticket title"] || "ticket"}`,
+            ticketId: ticketId,
+            messageId: newMessage._id.toString(),
+            read: false,
+          });
+        } catch (notifErr) {
+          console.error("Error creating notification:", notifErr);
+        }
+      }
+
+      if (isStaffSender) {
+        // Staff replied to client -> show badge for client
+        ticket.hasAgentReply = true;
+        ticket.hasClientViewed = false;
+        await ticket.save();
       }
     }
 
@@ -60,4 +70,27 @@ const postMessage = async (req, res) => {
   }
 };
 
-export { getMessages, postMessage };
+const markTicketNotificationsRead = async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    if (!ticketId) {
+      return res.status(400).json({ message: "ticketId is required" });
+    }
+
+    await NotificationModel.updateMany(
+      { ticketId: ticketId, read: false },
+      { $set: { read: true, readAt: new Date() } }
+    );
+
+    await TicketModel.findByIdAndUpdate(ticketId, {
+      $set: { hasClientViewed: true, hasAgentReply: false },
+    });
+
+    return res.json({ message: "Notifications marked as read" });
+  } catch (err) {
+    console.error("Error marking ticket notifications as read:", err);
+    res.status(500).json({ message: "Failed to mark notifications as read" });
+  }
+};
+
+export { getMessages, postMessage, markTicketNotificationsRead };
