@@ -10,6 +10,7 @@ import { ensureAssignedTicketsOpen } from "./lib/ticketHelpers.js";
 import notificationRoutes from "./routes/notifications.js";
 import reportRoutes from "./routes/reports.js";
 import connectMongo from "./lib/db.js";
+import mongoose from "mongoose";
 
 const app = express();
 dotenv.config();
@@ -47,7 +48,30 @@ app.use(messageRoutes);
 app.use(notificationRoutes);
 app.use(reportRoutes);
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, env: process.env.VERCEL ? "vercel" : "local" });
+  res.json({
+    ok: true,
+    env: process.env.VERCEL ? "vercel" : "local",
+    mongoReadyState: mongoose.connection.readyState,
+  });
+});
+app.get("/api/health/db", async (req, res) => {
+  try {
+    await connectMongo(MONGO_URL);
+    const ping = await mongoose.connection.db.admin().ping();
+    res.json({
+      ok: true,
+      env: process.env.VERCEL ? "vercel" : "local",
+      mongoReadyState: mongoose.connection.readyState,
+      ping,
+    });
+  } catch (err) {
+    console.error("DB health check failed", err);
+    res.status(500).json({
+      ok: false,
+      message: err.message,
+      mongoReadyState: mongoose.connection.readyState,
+    });
+  }
 });
 
 if (!process.env.VERCEL) {
