@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import categoryRoutes from "./routes/categories.js";
@@ -21,14 +22,33 @@ const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/Ticketing"
 const rootDir = process.cwd();
 
 app.use(express.json());
+
+let sessionStore;
+const initSessionStore = async () => {
+  try {
+    sessionStore = new MongoStore({
+      mongoUrl: MONGO_URL,
+      touchAfter: 24 * 3600,
+    });
+    sessionStore.on("error", (err) => {
+      console.warn("Session store error:", err.message);
+    });
+  } catch (err) {
+    console.warn("Cannot initialize session store:", err.message);
+  }
+};
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "ticketing-secret",
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
       httpOnly: true,
       sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
@@ -46,6 +66,7 @@ mongoose
   .connect(MONGO_URL)
   .then(async () => {
     console.log("MongoDB connected");
+    await initSessionStore();
     await ensureAssignedTicketsOpen();
   })
   .catch((error) => {
