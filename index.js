@@ -17,8 +17,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 7000;
-const MONGO_URL = process.env.MONGO_URL 
- "mongodb://localhost:27017/Ticketing";
+const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/Ticketing";
 const rootDir = process.cwd();
 
 app.use(express.json());

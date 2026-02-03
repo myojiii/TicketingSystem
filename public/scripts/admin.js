@@ -48,11 +48,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ========================================
   const logoutBtn = document.getElementById('logout-btn');
 
-  logoutBtn?.addEventListener('click', () => {
+  logoutBtn?.addEventListener('click', async () => {
     // Show confirmation dialog
     const confirmLogout = confirm('Are you sure you want to logout?');
     
     if (confirmLogout) {
+      try {
+        await fetch('/auth/logout', { method: 'POST' });
+      } catch (err) {
+        console.warn('Logout request failed', err);
+      }
       // Clear any stored session data
       localStorage.removeItem('sidebarCollapsed');
       localStorage.removeItem('userId');

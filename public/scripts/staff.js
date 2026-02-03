@@ -24,10 +24,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ========================================
   const logoutBtn = document.getElementById('logout-btn');
 
-  logoutBtn?.addEventListener('click', () => {
+  logoutBtn?.addEventListener('click', async () => {
     const confirmLogout = confirm('Are you sure you want to logout?');
     
     if (confirmLogout) {
+      try {
+        await fetch('/auth/logout', { method: 'POST' });
+      } catch (err) {
+        console.warn('Logout request failed', err);
+      }
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userRole');
       window.location.href = '/';
     }
   });

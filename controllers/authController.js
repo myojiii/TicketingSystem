@@ -44,6 +44,17 @@ const login = async (req, res) => {
   });
 };
 
+const logout = async (req, res) => {
+  if (!req.session) {
+    return res.json({ message: "Logged out" });
+  }
+
+  req.session.destroy(() => {
+    res.clearCookie("connect.sid");
+    return res.json({ message: "Logged out" });
+  });
+};
+
 const getUserById = async (req, res) => {
   const { id } = req.params;
   if (!id) return res.status(400).json({ message: "id is required" });
@@ -103,4 +114,4 @@ const getUserByEmail = async (req, res) => {
   }
 };
 
-export { login, getUserById, getUserByEmail };
+export { login, logout, getUserById, getUserByEmail };

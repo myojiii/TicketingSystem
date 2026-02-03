@@ -37,9 +37,15 @@ function initializeSidebar() {
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await fetch("/auth/logout", { method: "POST" });
+      } catch (err) {
+        console.warn("Logout request failed", err);
+      }
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");
+      localStorage.removeItem("userId");
       window.location.href = "/";
     });
   }
