@@ -19,6 +19,16 @@ const login = async (req, res) => {
   const role = (authUser.role || "").toLowerCase();
   const userId = authUser._id?.toString() || `user-${role || "user"}`;
 
+  if (req.session) {
+    req.session.user = {
+      id: userId,
+      role: authUser.role || "",
+      name: authUser.name || "",
+      email: authUser.email || "",
+      department: authUser.department || "",
+    };
+  }
+
   let redirect = "/";
   if (role === "staff") redirect = "/staff";
   if (role === "admin") redirect = "/admin";

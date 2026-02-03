@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
+import session from "express-session";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import categoryRoutes from "./routes/categories.js";
@@ -10,6 +11,7 @@ import messageRoutes from "./routes/messages.js";
 import { ensureAssignedTicketsOpen } from "./lib/ticketHelpers.js";
 import notificationRoutes from "./routes/notifications.js";
 import reportRoutes from "./routes/reports.js";
+import { requireRole } from "./middleware/auth.js";
 
 const app = express();
 dotenv.config();
@@ -18,10 +20,21 @@ const PORT = process.env.PORT || 7000;
 const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/Ticketing";
 const rootDir = process.cwd();
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "ticketing-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+    },
+  })
+);
+app.use("/staff", requireRole("staff", "admin"), express.static(path.join(rootDir, "public", "staff")));
+app.use("/admin", requireRole("admin"), express.static(path.join(rootDir, "public", "admin")));
+app.use("/client", requireRole("client"), express.static(path.join(rootDir, "public", "client")));
 app.use(express.static(path.join(rootDir, "public")));
-app.use("/staff", express.static(path.join(rootDir, "public", "staff")));
-app.use("/admin", express.static(path.join(rootDir, "public", "admin")));
-app.use("/client", express.static(path.join(rootDir, "public", "client")));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(rootDir, "public", "auth", "login.html"));
