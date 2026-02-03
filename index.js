@@ -13,12 +13,14 @@ import notificationRoutes from "./routes/notifications.js";
 import reportRoutes from "./routes/reports.js";
 import { requireRole } from "./middleware/auth.js";
 
-const app = express();
 dotenv.config();
 
+const app = express();
 const PORT = process.env.PORT || 7000;
-const MONGO_URL = process.env.MONGO_URL || "mongodb://localhost:27017/Ticketing";
+const MONGO_URL = process.env.MONGO_URL 
+ "mongodb://localhost:27017/Ticketing";
 const rootDir = process.cwd();
+
 app.use(express.json());
 app.use(
   session({
@@ -40,6 +42,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(rootDir, "public", "auth", "login.html"));
 });
 
+// MongoDB Connection
 mongoose
   .connect(MONGO_URL)
   .then(async () => {
@@ -50,6 +53,7 @@ mongoose
     console.error("MongoDB connection error:", error);
   });
 
+// Routes
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(categoryRoutes);
@@ -57,6 +61,13 @@ app.use(ticketRoutes);
 app.use(messageRoutes);
 app.use(notificationRoutes);
 app.use(reportRoutes);
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+
+// Only listen in development (local)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
+
+// Export for Vercel
+export default app;
